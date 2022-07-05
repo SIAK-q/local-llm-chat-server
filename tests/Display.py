@@ -78,7 +78,7 @@ class TestJudger(Judger):
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
         #self.logger.print("y_hat = {}".format([y_hat[i] for i in range(len(y_hat))]))
-        #self.logger.print("gt = {}".format([test_dataset[i] for i in range(len(test_dataset))]))
+        self.logger.print("gt = {}".format([test_dataset[i] for i in range(len(test_dataset))]))
         return super().judge(y_hat, test_dataset)
 
 
