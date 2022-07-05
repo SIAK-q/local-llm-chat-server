@@ -43,11 +43,36 @@ class TestSplitter(Splitter):
         self.ratio = ratio
 
     def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
-        trainingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio))]
-        trainingSet = TrainTestDataset(trainingSet)
+        y=[dataset[i][1] for i in range(len(dataset))]
+        y_lable=list(set(y))
+        k=len(y_lable)
+        trainData=list()
+        testData=list()
+        for i in range(k):
+            index=[j for j,x in enumerate(y) if x==y_lable[i]]
+            a_size=len(index)
+            if a_size==0:
+                continue
+            train_size=math.floor(a_size*self.ratio)
+            f1=[j for j in range(a_size)]
+            import random
+            random.shuffle(f1)
 
-        testingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio), len(dataset))]
-        testingSet = TrainTestDataset(testingSet)
+            tr=f1[:train_size]
+            te=f1[train_size:]
+
+            tr_set=[index[h] for h in tr]
+            te_set=[index[g] for g in te]
+            train_a=[dataset[m] for m in tr_set]
+            test_a =[dataset[n] for n in te_set]
+            trainData.extend(train_a)
+            testData.extend(test_a)
+
+        #trainingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio))]
+        trainingSet = TrainTestDataset(trainData)
+
+        #testingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio), len(dataset))]
+        testingSet = TrainTestDataset(testData)
 
         self.logger.print("split!")
         self.logger.print("training_len = {}".format(len(trainingSet)))
