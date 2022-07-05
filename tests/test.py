@@ -1,58 +1,14 @@
-<<<<<<< HEAD
-# DL-Frame
-
-一个及其简易的机器学习可视化框架，用户仅需实现：
-- 数据载入逻辑
-- 数据集分割逻辑
-- 模型训练逻辑
-- 模型测试逻辑
-- 结果判别逻辑
-
-即可将自定义类注册进 Manager 运行。
-
---- 
-
-框架提供了 logger，开发者可以方便地向前端输出内容。
-
---- 
-
-核型运行逻辑：
-
-~~~python
-train_data, test_data = splitter.split(dataset)
-model.train(train_data)
-y_hat = model.test(test_data)
-judger.judge(y_hat, test_data)
-~~~
-
---- 
-
-本框架仅提供 WebSocket 服务，不提供页面显示。需配合[前端](https://dlframe.picpic.site/)使用。前端代码开源在[仓库](https://github.com/picpic2013/dlframe-front.git)。
-
-## 安装方法
-
-~~~bash
-# 可选，新建 conda 环境
-conda create -n dlframe python=3.8
-conda activate dlframe
-
-# 克隆仓库与安装
-git clone https://github.com/picpic2013/dlframe-back.git
-cd dlframe-back
-python ./setup.py install
-~~~
-
-## 测试用例
-
-~~~bash
-python tests/Display.py
-~~~
-
-## 使用示例
-
-仅需实现以下接口，即可将自定义类注册进 Manager 运行
-
-~~~python
+import os
+import sys
+from typing import Tuple
+sys.path.append(os.path.abspath(
+    os.path.join(
+        os.path.abspath(__file__), '..', '..'
+    )
+))
+import sklearn
+import math
+from traitlets import Any
 from dlframe import DataSet, Splitter, Model, Judger, WebManager
 
 # 数据集
@@ -99,17 +55,23 @@ class TestSplitter(Splitter):
 
 # 模型
 class TestModel(Model):
-    def __init__(self, learning_rate) -> None:
+    def __init__(self, learning_rate, flag) -> None:
         super().__init__()
         self.learning_rate = learning_rate
+        self.flag = flag
 
     def train(self, trainDataset: DataSet) -> None:
+        if self.flag == 1:
+            self.logger.print("Model 1")
+        elif self.flag == 2:
+             self.logger.print("Model 2")
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         return super().train(trainDataset)
 
     def test(self, testDataset: DataSet) -> Any:
         self.logger.print("testing")
         return testDataset
+
 
 # 结果判别器
 class TestJudger(Judger):
@@ -128,51 +90,13 @@ if __name__ == '__main__':
     ).register_dataset(
         TestDataset(20), '20_nums'
     ).register_splitter(
-        TestSplitter(0.8), 'ratio:0.8'
+        TestSplitter(0.8), 'shdfuishfratio:0.8'
     ).register_splitter(
         TestSplitter(0.5), 'ratio:0.5'
     ).register_model(
-        TestModel(1e-3)
+        TestModel('1e-3',1),'Model 1'
+    ).register_model(
+        TestModel('1e-3',2),'Model 2'
     ).register_judger(
         TestJudger()
     ).start()
-~~~
-=======
-# summer-back
-
-#### 介绍
-小学期实验平台后端
-
-#### 软件架构
-软件架构说明
-
-
-#### 安装教程
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
->>>>>>> 99b58e0a0d15969c472d0a00514c61582cece68f
