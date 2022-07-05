@@ -37,33 +37,10 @@ class TrainTestDataset(ListDataSet):
     def __getitem__(self, idx: int) -> Any:
         return self.item[idx]
 
-#class TestDataset(DataSet):
- #   def __init__(self, num:int) -> None:
-  #      super().__init__()
-  #      self.num = range(num)
-  #      self.logger.print("I'm in range 0, {}".format(num))
-#
-  #  def __len__(self) -> int:
-  #      return len(self.num)
-#    def __getitem__(self, idx: int) -> Any:
-#        return self.num[idx]
-
-#class TrainTestDataset(DataSet):
-#    def __init__(self, item) -> None:
-#        super().__init__()
-#        self.item = item
-
-#    def __len__(self) -> int:
-#        return len(self.item)
-
-#    def __getitem__(self, idx: int) -> Any:
-#        return self.item[idx]
-
 class TestSplitter(Splitter):
     def __init__(self, ratio) -> None:
         super().__init__()
         self.ratio = ratio
-        self.logger.print("I'm ratio:{}".format(self.ratio))
 
     def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
         trainingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio))]
@@ -100,8 +77,8 @@ class TestJudger(Judger):
         super().__init__()
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
-        self.logger.print("y_hat = {}".format([y_hat[i] for i in range(len(y_hat))]))
-        self.logger.print("gt = {}".format([test_dataset[i] for i in range(len(test_dataset))]))
+        #self.logger.print("y_hat = {}".format([y_hat[i] for i in range(len(y_hat))]))
+        #self.logger.print("gt = {}".format([test_dataset[i] for i in range(len(test_dataset))]))
         return super().judge(y_hat, test_dataset)
 
 
@@ -112,13 +89,19 @@ from sklearn.datasets import load_breast_cancer
 
 if __name__ == '__main__':
     WebManager().register_dataset(
-        TestDataset(load_iris().data.tolist()), '鸢尾花数据集'
+        TestDataset([list(t) for t in zip(load_iris().data.tolist(),load_iris().target.tolist())]), '鸢尾花数据集'
     ).register_dataset(
-        TestDataset(load_boston().data.tolist()), '波士顿房价数据集'
+        TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())]), '波士顿房价数据集'
     ).register_dataset(
-        TestDataset(load_breast_cancer().data.tolist()), '威斯康辛州乳腺癌数据集'
+        TestDataset([list(t) for t in zip(load_breast_cancer().data.tolist(),load_breast_cancer().target.tolist())]), '威斯康辛州乳腺癌数据集'
+    ).register_splitter(
+        TestSplitter(0.8), 'ratio:0.9'
     ).register_splitter(
         TestSplitter(0.8), 'ratio:0.8'
+    ).register_splitter(
+        TestSplitter(0.8), 'ratio:0.7'
+    ).register_splitter(
+        TestSplitter(0.8), 'ratio:0.6'
     ).register_splitter(
         TestSplitter(0.5), 'ratio:0.5'
     ).register_model(
