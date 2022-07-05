@@ -55,12 +55,16 @@ class TestSplitter(Splitter):
 
 # 模型
 class TestModel(Model):
-    def __init__(self, learning_rate) -> None:
+    def __init__(self, learning_rate, flag) -> None:
         super().__init__()
         self.learning_rate = learning_rate
+        self.flag = flag
 
     def train(self, trainDataset: DataSet) -> None:
-        self.logger.print("ModelName"+Model.__name__)
+        if self.flag == 1:
+            self.logger.print("Model 1")
+        elif self.flag == 2:
+             self.logger.print("Model 2")
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         return super().train(trainDataset)
 
@@ -90,9 +94,9 @@ if __name__ == '__main__':
     ).register_splitter(
         TestSplitter(0.5), 'ratio:0.5'
     ).register_model(
-        TestModel('1e-3'),'Model 1'
+        TestModel('1e-3',1),'Model 1'
     ).register_model(
-        TestModel('1e-5'),'Model 2'
+        TestModel('1e-3',2),'Model 2'
     ).register_judger(
         TestJudger()
     ).start()
