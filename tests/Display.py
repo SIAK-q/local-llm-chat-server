@@ -17,9 +17,10 @@ from sklearn import datasets
 import numpy as np
 
 class TestDataset(ListDataSet):
-    def __init__(self, num) -> None:
+    def __init__(self, num,name:str) -> None:
         super().__init__(num)
         self.logger.print("I'm in range 0, {}".format(len(num)))
+        self.name=name
         self.num = num
 
     def __len__(self) -> int:
@@ -28,8 +29,9 @@ class TestDataset(ListDataSet):
         return self.num[idx]
 
 class TrainTestDataset(ListDataSet):
-    def __init__(self, item) -> None:
+    def __init__(self, item,name:str) -> None:
         super().__init__(item)
+        self.name=name
         self.item = item
     def __len__(self) -> int:
         return len(self.item)
@@ -41,6 +43,21 @@ class TestSplitter(Splitter):
     def __init__(self, ratio) -> None:
         super().__init__()
         self.ratio = ratio
+
+    def split_(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
+        f1 = [j for j in range(len(dataset))]
+        import random
+        random.shuffle(f1)
+        train_size = math.floor(len(dataset) * self.ratio)
+        tr = f1[:train_size]
+        te = f1[train_size:]
+        trainData = [dataset[m] for m in tr]
+        testData = [dataset[n] for n in te]
+        trainingSet = TrainTestDataset(trainData,dataset.name)
+        testingSet = TrainTestDataset(testData,dataset.name)
+        self.logger.print("split!")
+        self.logger.print("training_len = {}".format(len(trainingSet)))
+        return trainingSet, testingSet
 
     def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
         y=[dataset[i][1] for i in range(len(dataset))]
@@ -60,7 +77,6 @@ class TestSplitter(Splitter):
 
             tr=f1[:train_size]
             te=f1[train_size:]
-
             tr_set=[index[h] for h in tr]
             te_set=[index[g] for g in te]
             train_a=[dataset[m] for m in tr_set]
@@ -69,10 +85,9 @@ class TestSplitter(Splitter):
             testData.extend(test_a)
 
         #trainingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio))]
-        trainingSet = TrainTestDataset(trainData)
-
+        trainingSet = TrainTestDataset(trainData,dataset.name)
         #testingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio), len(dataset))]
-        testingSet = TrainTestDataset(testData)
+        testingSet = TrainTestDataset(testData,dataset.name)
 
         self.logger.print("split!")
         self.logger.print("training_len = {}".format(len(trainingSet)))
@@ -114,19 +129,19 @@ from sklearn.datasets import load_breast_cancer
 
 if __name__ == '__main__':
     WebManager().register_dataset(
-        TestDataset([list(t) for t in zip(load_iris().data.tolist(),load_iris().target.tolist())]), '鸢尾花数据集'
+        TestDataset([list(t) for t in zip(load_iris().data.tolist(),load_iris().target.tolist())],"鸢尾花"), '鸢尾花数据集'
     ).register_dataset(
-        TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())]), '波士顿房价数据集'
+        TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())],"波士顿"), '波士顿房价数据集'
     ).register_dataset(
-        TestDataset([list(t) for t in zip(load_breast_cancer().data.tolist(),load_breast_cancer().target.tolist())]), '威斯康辛州乳腺癌数据集'
+        TestDataset([list(t) for t in zip(load_breast_cancer().data.tolist(),load_breast_cancer().target.tolist())],"乳腺癌"), '威斯康辛州乳腺癌数据集'
     ).register_splitter(
-        TestSplitter(0.8), 'ratio:0.9'
+        TestSplitter(0.9), 'ratio:0.9'
     ).register_splitter(
         TestSplitter(0.8), 'ratio:0.8'
     ).register_splitter(
-        TestSplitter(0.8), 'ratio:0.7'
+        TestSplitter(0.7), 'ratio:0.7'
     ).register_splitter(
-        TestSplitter(0.8), 'ratio:0.6'
+        TestSplitter(0.6), 'ratio:0.6'
     ).register_splitter(
         TestSplitter(0.5), 'ratio:0.5'
     ).register_model(
