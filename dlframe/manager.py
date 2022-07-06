@@ -119,10 +119,7 @@ class Manager:
         for key, value in conf.judger_params.items():
             setattr(judger, key, value)
 
-        if dataset.name=="鸢尾花":
-            train_data, test_data = splitter.split(dataset)
-        else:
-            train_data, test_data = splitter.split_(dataset)
+        train_data, test_data = splitter.split(dataset)
         model.train(train_data)
         y_hat = model.test(test_data)
         judger.judge(y_hat, test_data)

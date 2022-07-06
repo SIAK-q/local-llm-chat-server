@@ -16,6 +16,14 @@ from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
 from sklearn import datasets
 import numpy as np
 
+from algorithm import 决策树
+from algorithm import 梯度增强
+from algorithm import 概率图
+from algorithm import 贝叶斯分类器
+from algorithm.贝叶斯分类器 import NaiveBayes
+from algorithm.决策树 import DecisionTree
+from algorithm.梯度增强 import GradientBoostingRegressor
+
 class TestDataset(ListDataSet):
     def __init__(self, num,name:str) -> None:
         super().__init__(num)
@@ -44,49 +52,42 @@ class TestSplitter(Splitter):
         super().__init__()
         self.ratio = ratio
 
-    def split_(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
-        f1 = [j for j in range(len(dataset))]
-        import random
-        random.shuffle(f1)
-        train_size = math.floor(len(dataset) * self.ratio)
-        tr = f1[:train_size]
-        te = f1[train_size:]
-        trainData = [dataset[m] for m in tr]
-        testData = [dataset[n] for n in te]
-        trainingSet = TrainTestDataset(trainData,dataset.name)
-        testingSet = TrainTestDataset(testData,dataset.name)
-        self.logger.print("split!")
-        self.logger.print("training_len = {}".format(len(trainingSet)))
-        return trainingSet, testingSet
-
     def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
-        y=[dataset[i][1] for i in range(len(dataset))]
-        y_lable=list(set(y))
-        k=len(y_lable)
-        trainData=list()
-        testData=list()
-        for i in range(k):
-            index=[j for j,x in enumerate(y) if x==y_lable[i]]
-            a_size=len(index)
-            if a_size==0:
-                continue
-            train_size=math.floor(a_size*self.ratio)
-            f1=[j for j in range(a_size)]
+        if dataset.name=="鸢尾花" or dataset.name=="乳腺癌"or dataset.name=="西瓜":
+            y=[dataset[i][1] for i in range(len(dataset))]
+            y_lable=list(set(y))
+            k=len(y_lable)
+            trainData=list()
+            testData=list()
+            for i in range(k):
+                index=[j for j,x in enumerate(y) if x==y_lable[i]]
+                a_size=len(index)
+                if a_size==0:
+                    continue
+                train_size=math.floor(a_size*self.ratio)
+                f1=[j for j in range(a_size)]
+                import random
+                random.shuffle(f1)
+
+                tr=f1[:train_size]
+                te=f1[train_size:]
+                tr_set=[index[h] for h in tr]
+                te_set=[index[g] for g in te]
+                train_a=[dataset[m] for m in tr_set]
+                test_a =[dataset[n] for n in te_set]
+                trainData.extend(train_a)
+                testData.extend(test_a)
+        else:
+            f1 = [j for j in range(len(dataset))]
             import random
             random.shuffle(f1)
+            train_size = math.floor(len(dataset) * self.ratio)
+            tr = f1[:train_size]
+            te = f1[train_size:]
+            trainData = [dataset[m] for m in tr]
+            testData = [dataset[n] for n in te]
 
-            tr=f1[:train_size]
-            te=f1[train_size:]
-            tr_set=[index[h] for h in tr]
-            te_set=[index[g] for g in te]
-            train_a=[dataset[m] for m in tr_set]
-            test_a =[dataset[n] for n in te_set]
-            trainData.extend(train_a)
-            testData.extend(test_a)
-
-        #trainingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio))]
         trainingSet = TrainTestDataset(trainData,dataset.name)
-        #testingSet = [dataset[i] for i in range(math.floor(len(dataset) * self.ratio), len(dataset))]
         testingSet = TrainTestDataset(testData,dataset.name)
 
         self.logger.print("split!")
@@ -94,22 +95,45 @@ class TestSplitter(Splitter):
         return trainingSet, testingSet
 
 class TestModel(Model):
-    def __init__(self, learning_rate,flag:int) -> None:
+    def __init__(self, learning_rate,name:str) -> None:
         super().__init__()
         self.learning_rate = learning_rate
-        self.flag=flag
+        self.name=name
 
     def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        if self.flag==1:
-            self.logger.print("执行第一个模型")
-        if self.flag==2:
-            self.logger.print("执行第二个模型")
+        if self.name=="决策树":
+            self.jueceshuModel=DecisionTree()
+            self.jueceshuModel.fit(train_X,train_Y)
+            self.tree=self.jueceshuModel._build_tree(train_X,train_Y)
+            self.logger.print("执行决策树算法")
+        if self.name=="贝叶斯分类器":
+            self.beyesiModel=NaiveBayes()
+            self.beyesiModel.fit(train_X,train_Y)
+            self.logger.print("执行贝叶斯分类器算法")
+        if self.name=="梯度增强":
+            self.tiduzengqiangModel=GradientBoostingRegressor()
+            self.tiduzengqiangModel.fit(train_X,train_Y)
+            self.logger.print("执行梯度增强算法")
+        if self.name=="概率图":
+            self.logger.print("执行概率图算法")
 
         return super().train(trainDataset)
 
     def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        if self.name=="决策树":
+            test_Y=self.jueceshuModel.predict(test_X)
+        if self.name=="贝叶斯分类器":
+            test_Y = self.beyesiModel.predict(test_X)
+        if self.name=="梯度增强":
+            self.tiduzengqiangModel.predict(test_X)
+        if self.name=="概率图":
+            pass
         self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return testDataset
 
 class TestJudger(Judger):
@@ -145,9 +169,13 @@ if __name__ == '__main__':
     ).register_splitter(
         TestSplitter(0.5), 'ratio:0.5'
     ).register_model(
-        TestModel(1e-3,1),'第一个模型'
+        TestModel(1e-3,"决策树"),'决策树'
     ).register_model(
-        TestModel(1e-3,2),'第二个模型'
+        TestModel(1e-3,"贝叶斯分类器"),'贝叶斯分类器'
+    ).register_model(
+        TestModel(1e-3,"梯度增强"),'梯度增强'
+    ).register_model(
+        TestModel(1e-3,"概率图"),'概率图'
     ).register_judger(
         TestJudger()
     ).start()

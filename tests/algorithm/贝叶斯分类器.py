@@ -4,7 +4,6 @@ import math
 from mlfromscratch.utils import train_test_split, normalize
 from mlfromscratch.utils import Plot, accuracy_score
 
-
 class NaiveBayes():
     """The Gaussian Naive Bayes classifier. """
     def fit(self, X, y):
@@ -14,10 +13,10 @@ class NaiveBayes():
         # Calculate the mean and variance of each feature for each class
         for i, c in enumerate(self.classes):
             # Only select the rows where the label equals the given class
-            X_where_c = X[np.where(y == c)]
+            X_where_c = [np.array(X)[k] for k in np.where(y == c)]
             self.parameters.append([])
             # Add the mean and variance for each feature (column)
-            for col in X_where_c.T:
+            for col in X_where_c:
                 parameters = {"mean": col.mean(), "var": col.var()}
                 self.parameters[i].append(parameters)
 
