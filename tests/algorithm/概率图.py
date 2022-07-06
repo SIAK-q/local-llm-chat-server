@@ -3,6 +3,7 @@ import math
 import time
 
 
+
 class Factor:
     def __init__(self, un_list, ob_list):
         self.un_list = un_list

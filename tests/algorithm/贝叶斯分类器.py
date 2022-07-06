@@ -4,6 +4,7 @@ import math
 from mlfromscratch.utils import train_test_split, normalize
 from mlfromscratch.utils import Plot, accuracy_score
 
+
 class NaiveBayes():
     """The Gaussian Naive Bayes classifier. """
     def fit(self, X, y):

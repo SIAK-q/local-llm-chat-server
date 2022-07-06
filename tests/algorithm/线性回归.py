@@ -127,6 +127,7 @@ class LinearRegression(Regression):
             super(LinearRegression, self).fit(X, y)
 
 
+
 class LassoRegression(Regression):
     """Linear regression model with a regularization factor which does both variable selection
     and regularization. Model that tries to balance the fit of the model with respect to the training
