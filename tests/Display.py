@@ -193,10 +193,8 @@ class TestModel(Model):
             test_Y = self.knn.predict(test_X)
         if self.name=="XGboost":          
             test_Y=self.reg.predict(test_X)
-
         if self.name=="SVM":
             test_Y = self.classifier.predict(test_X)
-            test_Y=self.tiduzengqiangModel.predict(test_X)
         if self.name=="随机森林":
             test_Y=self.suijisenlinModel.predict(test_X)
         if self.name=="逻辑回归":
