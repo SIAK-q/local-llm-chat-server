@@ -51,7 +51,10 @@ class TestDataset(ListDataSet):
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
-
+    def show(self):
+        if self.name=="鸢尾花":
+            self.logger.print("feature_names:{}".format(load_iris().feature_names))
+            self.logger.print("target_names:{}".format(load_iris().target_names))
 class TrainTestDataset(ListDataSet):
     def __init__(self, item,name:str) -> None:
         super().__init__(item)
@@ -140,13 +143,10 @@ class TestModel(Model):
             self.tiduzengqiangModel=GradientBoostingClassifier()
             self.tiduzengqiangModel.fit(train_X,train_Y)
             self.logger.print("执行梯度增强算法")
-        if self.name=="概率图":
-            self.logger.print("执行概率图算法")
         if self.name=="线性回归":
             self.LrModel=LinearRegression()
             self.LrModel.fit(train_X,train_Y)
             self.logger.print("执行线性回归算法")
-
         if self.name=="k-近邻":
             self.knn = KNeighborsClassifier() 
             self.knn.fit(train_X,train_Y) 
@@ -184,19 +184,15 @@ class TestModel(Model):
         if self.name=="贝叶斯分类器":
             test_Y = self.beyesiModel.predict(test_X)
         if self.name=="梯度增强":
-            self.tiduzengqiangModel.predict(test_X)
-        if self.name=="概率图":
-            pass
+            test_Y=self.tiduzengqiangModel.predict(test_X)
         if self.name=="线性回归":
             test_Y=self.LrModel.predict(test_X)
         if self.name=="k-近邻":
             test_Y = self.knn.predict(test_X)
         if self.name=="XGboost":          
             test_Y=self.reg.predict(test_X)
-
         if self.name=="SVM":
             test_Y = self.classifier.predict(test_X)
-            test_Y=self.tiduzengqiangModel.predict(test_X)
         if self.name=="随机森林":
             test_Y=self.suijisenlinModel.predict(test_X)
         if self.name=="逻辑回归":
@@ -249,17 +245,17 @@ if __name__ == '__main__':
     ).register_model(
         TestModel(1e-3,"梯度增强"),'梯度增强'
     ).register_model(
-        TestModel(1e-3,"线性回归"),'线性回归'
-    ).register_model(
         TestModel(1e-3,"k-近邻"),'k-近邻'
-    ).register_model(
-        TestModel(1e-3,"XGboost"),'XGboost'
     ).register_model(
         TestModel(1e-3,"SVM"),'SVM'
     ).register_model(
         TestModel(1e-3,"随机森林"),'随机森林'
     ).register_model(
         TestModel(1e-3,"逻辑回归"),'逻辑回归'
+    ).register_model(
+        TestModel(1e-3,"线性回归"),'线性回归'
+    ).register_model(
+        TestModel(1e-3,"XGboost"),'XGboost'
     ).register_model(
         TestModel(1e-3,"K-means聚类"),'K-means聚类'
     ).register_judger(
