@@ -217,7 +217,7 @@ class TestJudger(Judger):
         if self.name == "分类判别":
             self.logger.print("执行分类判别")
             self.accuancy_score=accuracy_score(test_Y,y_hat)
-            self.logger.print('准确率值为：%f' % (self.accuancy_score))
+            self.logger.print('准确率为：%f%%' % ((self.accuancy_score)*100))
             self.kappa=cohen_kappa_score(test_Y,y_hat)
             self.logger.print('分类kappa系数值为：%f' %(self.kappa))
             self.ham_distance=hamming_loss(test_Y,y_hat)
