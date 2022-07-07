@@ -2,6 +2,10 @@ import os
 import sys
 
 import numpy
+from sklearn.linear_model import LinearRegression
+from sklearn.neighbors import KNeighborsClassifier
+from xgboost import XGBRegressor as XGBR
+
 
 sys.path.append(os.path.abspath(
     os.path.join(
@@ -13,7 +17,7 @@ from typing import Any, Tuple
 import math
 
 from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
-from sklearn import datasets
+from sklearn import datasets, svm
 import numpy as np
 
 from algorithm import 决策树
@@ -23,6 +27,22 @@ from algorithm import 贝叶斯分类器
 from algorithm.贝叶斯分类器 import NaiveBayes
 from algorithm.决策树 import DecisionTree
 from algorithm.梯度增强 import GradientBoostingRegressor
+from algorithm import XGboost
+
+params = {
+    'eta': 0.02,  #lr
+    'num_class':3,
+    'max_depth': 6, 
+    'min_child_weight':3,#最小叶子节点样本权重和
+    'gamma':0, #指定节点分裂所需的最小损失函数下降值。
+    'subsample': 0.7,  #控制对于每棵树，随机采样的比例
+    'colsample_bytree': 0.3,  #用来控制每棵随机采样的列数的占比 (每一列是一个特征)。
+    'lambda':2,
+    'objective': 'multi:softmax', 
+    'eval_metric': 'mlogloss', 
+    'silent': True, 
+    'nthread': -1
+}
 
 class TestDataset(ListDataSet):
     def __init__(self, num,name:str) -> None:
@@ -119,11 +139,31 @@ class TestModel(Model):
             self.logger.print("执行梯度增强算法")
         if self.name=="概率图":
             self.logger.print("执行概率图算法")
+        if self.name=="线性回归":
+            self.LrModel=LinearRegression()
+            self.LrModel.fit(train_X,train_Y)
+            self.logger.print("执行线性回归算法")
+
+        if self.name=="k-近邻":
+            self.knn = KNeighborsClassifier() 
+            self.knn.fit(train_X,train_Y) 
+            self.logger.print("执行k-近邻算法")
+        if self.name=="XGboost":
+            # self.xgb_model = XGboost()
+            # self.xgb_model.fit(train_X,train_Y)
+            self.reg = XGBR(n_estimators=100)
+            self.reg.fit(train_X,train_Y)
+            self.logger.print("执行XGboost算法")
+        if self.name=="SVM":
+            self.classifier = svm.SVC(C=2, kernel='rbf', gamma=10, decision_function_shape='ovo') 
+            self.classifier.fit(train_X,train_Y) 
+            self.logger.print("执行SVM算法")
 
         return super().train(trainDataset)
 
     def test(self, testDataset: DataSet) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_ans = [testDataset[i][1] for i in range(len(testDataset))]
         if self.name=="决策树":
             test_Y=self.jueceshuModel.predict(test_X)
         if self.name=="贝叶斯分类器":
@@ -132,6 +172,16 @@ class TestModel(Model):
             self.tiduzengqiangModel.predict(test_X)
         if self.name=="概率图":
             pass
+        if self.name=="线性回归":
+            test_Y=self.LrModel.predict(test_X)
+        if self.name=="k-近邻":
+            test_Y = self.knn.predict(test_X)
+        if self.name=="XGboost":          
+            test_Y=self.reg.predict(test_X)
+
+        if self.name=="SVM":
+            test_Y = self.classifier.predict(test_X)
+
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return testDataset
@@ -175,7 +225,13 @@ if __name__ == '__main__':
     ).register_model(
         TestModel(1e-3,"梯度增强"),'梯度增强'
     ).register_model(
-        TestModel(1e-3,"概率图"),'概率图'
+        TestModel(1e-3,"线性回归"),'线性回归'
+    ).register_model(
+        TestModel(1e-3,"k-近邻"),'k-近邻'
+    ).register_model(
+        TestModel(1e-3,"XGboost"),'XGboost'
+    ).register_model(
+        TestModel(1e-3,"SVM"),'SVM'
     ).register_judger(
         TestJudger()
     ).start()
