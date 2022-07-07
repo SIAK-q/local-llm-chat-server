@@ -2,7 +2,9 @@ import os
 import sys
 
 import numpy
+from sklearn import metrics
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import calinski_harabasz_score, fowlkes_mallows_score, mean_absolute_error, mean_squared_error, r2_score
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBRegressor as XGBR
 
@@ -178,7 +180,6 @@ class TestModel(Model):
 
     def test(self, testDataset: DataSet) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
-        test_ans = [testDataset[i][1] for i in range(len(testDataset))]
         if self.name=="决策树":
             test_Y=self.jueceshuModel.predict(test_X)
         if self.name=="贝叶斯分类器":
@@ -201,20 +202,41 @@ class TestModel(Model):
             test_Y=self.kmeansModel.predict(test_X)
 
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        self.logger.print("y_hat={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
 
 class TestJudger(Judger):
-    def __init__(self) -> None:
+    def __init__(self,name:str) -> None:
         super().__init__()
+        self.name=name
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
         self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
+        test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("Y_hat={}".format([y_hat[i] for i in range(len(y_hat))]))
         self.true = 0
-        for i in range(len(y_hat)):
-            if y_hat[i]==test_dataset[i][1]:
-                self.true+=1
-        self.logger.print("正确率={}%".format(round((self.true/len(y_hat))*100),1))
+        if self.name=="聚类判别":
+            self.logger.print("执行聚类判别")
+            self.fmi_score = fowlkes_mallows_score(test_Y,y_hat)
+            self.logger.print('iris数据聚类FMI评价分值为：%f' %(self.fmi_score))
+            self.ch_score = calinski_harabasz_score(test_X,y_hat)
+            self.logger.print('iris数据聚类calinski_harabaz指数为：%f'%(self.ch_score))
+
+        if self.name=="回归判别":
+            self.logger.print("执行回归判别")
+            self.mse=mean_squared_error(test_Y,y_hat)
+            self.rmse=self.mse**0.5
+            self.mae=mean_absolute_error(test_Y,y_hat)
+            self.mape = metrics.mean_absolute_percentage_error(test_Y, y_hat)
+            self.r2=r2_score(test_Y,y_hat)
+            self.logger.print("均方误差={}".format(self.mse,1))
+            self.logger.print("均方根误差={}".format(self.rmse,1))
+            self.logger.print("平均绝对误差={}".format(self.mae,1))
+            self.logger.print("平均绝对百分比误差={}".format(self.mape,1))
+            # mape 输出不是 [0, 100] 范围内的百分比，值 100 并不意味着 100%，而是 1e2。此外，当y_true 很小(特定于指标)或当abs(y_true - y_pred) 很大(这对于大多数回归指标很常见)时，输出可以任意高。
+            self.logger.print("决定系数={}".format(self.r2,1))
 
         return super().judge(y_hat, test_dataset)
 
@@ -259,5 +281,7 @@ if __name__ == '__main__':
     ).register_model(
         TestModel(1e-3,"K-means聚类"),'K-means聚类'
     ).register_judger(
-        TestJudger()
+        TestJudger("聚类判别"),'聚类判别'
+    ).register_judger(
+        TestJudger("回归判别"),'回归判别'
     ).start()
