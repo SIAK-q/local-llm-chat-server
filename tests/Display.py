@@ -20,10 +20,7 @@ from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
 from sklearn import datasets, svm
 import numpy as np
 
-from algorithm import 决策树
-from algorithm import 梯度增强
-from algorithm import 概率图
-from algorithm import 贝叶斯分类器
+from algorithm import 决策树,梯度增强,概率图,贝叶斯分类器
 from algorithm.贝叶斯分类器 import NaiveBayes
 from algorithm.决策树 import DecisionTree
 from algorithm.梯度增强 import GradientBoostingRegressor
@@ -47,7 +44,6 @@ params = {
 class TestDataset(ListDataSet):
     def __init__(self, num,name:str) -> None:
         super().__init__(num)
-        self.logger.print("I'm in range 0, {}".format(len(num)))
         self.name=name
         self.num = num
 
@@ -73,7 +69,7 @@ class TestSplitter(Splitter):
         self.ratio = ratio
 
     def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
-        if dataset.name=="鸢尾花" or dataset.name=="乳腺癌"or dataset.name=="西瓜":
+        if dataset.name=="鸢尾花" or dataset.name=="乳腺癌":
             y=[dataset[i][1] for i in range(len(dataset))]
             y_lable=list(set(y))
             k=len(y_lable)
@@ -114,6 +110,14 @@ class TestSplitter(Splitter):
         self.logger.print("training_len = {}".format(len(trainingSet)))
         return trainingSet, testingSet
 
+from sklearn.tree import DecisionTreeClassifier,DecisionTreeRegressor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import GradientBoostingRegressor,GradientBoostingClassifier
+from sklearn.ensemble import RandomForestRegressor,RandomForestClassifier
+from sklearn.cluster import KMeans
+
+
 class TestModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
         super().__init__()
@@ -125,16 +129,15 @@ class TestModel(Model):
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         if self.name=="决策树":
-            self.jueceshuModel=DecisionTree()
+            self.jueceshuModel = DecisionTreeClassifier()
             self.jueceshuModel.fit(train_X,train_Y)
-            self.tree=self.jueceshuModel._build_tree(train_X,train_Y)
             self.logger.print("执行决策树算法")
         if self.name=="贝叶斯分类器":
-            self.beyesiModel=NaiveBayes()
-            self.beyesiModel.fit(train_X,train_Y)
+            self.beyesiModel=GaussianNB()
+            self.beyesiModel.fit(train_X, train_Y)
             self.logger.print("执行贝叶斯分类器算法")
         if self.name=="梯度增强":
-            self.tiduzengqiangModel=GradientBoostingRegressor()
+            self.tiduzengqiangModel=GradientBoostingClassifier()
             self.tiduzengqiangModel.fit(train_X,train_Y)
             self.logger.print("执行梯度增强算法")
         if self.name=="概率图":
@@ -158,6 +161,18 @@ class TestModel(Model):
             self.classifier = svm.SVC(C=2, kernel='rbf', gamma=10, decision_function_shape='ovo') 
             self.classifier.fit(train_X,train_Y) 
             self.logger.print("执行SVM算法")
+        if self.name=="随机森林":
+            self.suijisenlinModel=RandomForestClassifier()
+            self.suijisenlinModel.fit(train_X,train_Y)
+            self.logger.print("执行随机森林算法")
+        if self.name == "逻辑回归":
+            self.luojihuiguiModel=LogisticRegression()
+            self.luojihuiguiModel.fit(train_X,train_Y)
+            self.logger.print("执行逻辑回归算法")
+        if self.name == "K-means聚类":
+            self.kmeansModel=KMeans()
+            self.kmeansModel.fit(train_X,train_Y)
+            self.logger.print("执行K-means聚类算法")
 
         return super().train(trainDataset)
 
@@ -181,33 +196,42 @@ class TestModel(Model):
 
         if self.name=="SVM":
             test_Y = self.classifier.predict(test_X)
+            test_Y=self.tiduzengqiangModel.predict(test_X)
+        if self.name=="随机森林":
+            test_Y=self.suijisenlinModel.predict(test_X)
+        if self.name=="逻辑回归":
+            test_Y=self.luojihuiguiModel.predict(test_X)
+        if self.name=="K-means聚类":
+            test_Y=self.kmeansModel.predict(test_X)
 
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
-        return testDataset
+        return test_Y
 
 class TestJudger(Judger):
     def __init__(self) -> None:
         super().__init__()
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
-        #self.logger.print("y_hat = {}".format([y_hat[i] for i in range(len(y_hat))]))
-        self.logger.print("gt = {}".format([test_dataset[i] for i in range(len(test_dataset))]))
+        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        self.true = 0
+        for i in range(len(y_hat)):
+            if y_hat[i]==test_dataset[i][1]:
+                self.true+=1
+        self.logger.print("正确率={}%".format(round((self.true/len(y_hat))*100),1))
+
         return super().judge(y_hat, test_dataset)
 
 
-from sklearn.datasets import load_iris
-from sklearn.datasets import load_boston
-from sklearn.datasets import load_breast_cancer
-
+from sklearn.datasets import load_iris,load_boston,load_breast_cancer,load_diabetes,load_linnerud
 
 if __name__ == '__main__':
     WebManager().register_dataset(
         TestDataset([list(t) for t in zip(load_iris().data.tolist(),load_iris().target.tolist())],"鸢尾花"), '鸢尾花数据集'
     ).register_dataset(
-        TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())],"波士顿"), '波士顿房价数据集'
-    ).register_dataset(
         TestDataset([list(t) for t in zip(load_breast_cancer().data.tolist(),load_breast_cancer().target.tolist())],"乳腺癌"), '威斯康辛州乳腺癌数据集'
+    ).register_dataset(
+        TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())],"波士顿"), '波士顿房价数据集'
     ).register_splitter(
         TestSplitter(0.9), 'ratio:0.9'
     ).register_splitter(
@@ -232,6 +256,12 @@ if __name__ == '__main__':
         TestModel(1e-3,"XGboost"),'XGboost'
     ).register_model(
         TestModel(1e-3,"SVM"),'SVM'
+    ).register_model(
+        TestModel(1e-3,"随机森林"),'随机森林'
+    ).register_model(
+        TestModel(1e-3,"逻辑回归"),'逻辑回归'
+    ).register_model(
+        TestModel(1e-3,"K-means聚类"),'K-means聚类'
     ).register_judger(
         TestJudger()
     ).start()
