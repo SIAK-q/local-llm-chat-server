@@ -203,6 +203,206 @@ class TestModel(Model):
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
 
+class DecisionTreeModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.jueceshuModel = DecisionTreeClassifier()
+        self.jueceshuModel.fit(train_X,train_Y)
+        self.logger.print("执行决策树算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.jueceshuModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class BayesModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.beyesiModel=GaussianNB()
+        self.beyesiModel.fit(train_X, train_Y)
+        self.logger.print("执行贝叶斯分类器算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y = self.beyesiModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class GradientBoostingModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.tiduzengqiangModel=GradientBoostingClassifier()
+        self.tiduzengqiangModel.fit(train_X,train_Y)
+        self.logger.print("执行梯度增强算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.tiduzengqiangModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class LinearRegressionModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.LrModel=LinearRegression()
+        self.LrModel.fit(train_X,train_Y)
+        self.logger.print("执行线性回归算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.LrModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class KNeighborsModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.knn = KNeighborsClassifier() 
+        self.knn.fit(train_X,train_Y) 
+        self.logger.print("执行k-近邻算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y = self.knn.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class XGBRModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.reg = XGBR(n_estimators=100)
+        self.reg.fit(train_X,train_Y)
+        self.logger.print("执行XGboost算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.reg.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class SVMModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.classifier = svm.SVC(C=2, kernel='rbf', gamma=10, decision_function_shape='ovo') 
+        self.classifier.fit(train_X,train_Y) 
+        self.logger.print("执行SVM算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y = self.classifier.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class RandomForestModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.suijisenlinModel=RandomForestClassifier()
+        self.suijisenlinModel.fit(train_X,train_Y)
+        self.logger.print("执行随机森林算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.suijisenlinModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class LogisticRegressionModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.luojihuiguiModel=LogisticRegression()
+        self.luojihuiguiModel.fit(train_X,train_Y)
+        self.logger.print("执行逻辑回归算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.luojihuiguiModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
+class KmeansModel(Model):
+    def __init__(self, learning_rate,name:str) -> None:
+        super().__init__()
+        self.learning_rate = learning_rate
+        self.name=name
+    def train(self, trainDataset: DataSet) -> None:
+        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+        self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.kmeansModel=KMeans()
+        self.kmeansModel.fit(train_X,train_Y)
+        self.logger.print("执行K-means聚类算法")
+        return super().train(trainDataset)
+    def test(self, testDataset: DataSet) -> Any:
+        test_X = [testDataset[i][0] for i in range(len(testDataset))]
+        test_Y=self.kmeansModel.predict(test_X)
+        self.logger.print("testing")
+        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        return test_Y
+
 class TestJudger(Judger):
     def __init__(self,name:str) -> None:
         super().__init__()
@@ -223,8 +423,6 @@ class TestJudger(Judger):
             self.ham_distance=hamming_loss(test_Y,y_hat)
             self.logger.print('hamming距离值为：%f' % (self.ham_distance))
 
-
-            pass
         if self.name=="聚类判别":
             self.logger.print("执行聚类判别")
             self.fmi_score = fowlkes_mallows_score(test_Y,y_hat)
@@ -248,6 +446,64 @@ class TestJudger(Judger):
 
         return super().judge(y_hat, test_dataset)
 
+class ClassifyJudger(Judger):
+    def __init__(self,name:str) -> None:
+        super().__init__()
+        self.name=name
+
+    def judge(self, y_hat, test_dataset: DataSet) -> None:
+        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
+        self.logger.print("执行分类判别")
+        self.accuancy_score=accuracy_score(test_Y,y_hat)
+        self.logger.print('准确率为：%f%%' % ((self.accuancy_score)*100))
+        self.kappa=cohen_kappa_score(test_Y,y_hat)
+        self.logger.print('分类kappa系数值为：%f' %(self.kappa))
+        self.ham_distance=hamming_loss(test_Y,y_hat)
+        self.logger.print('hamming距离值为：%f' % (self.ham_distance))
+
+        return super().judge(y_hat, test_dataset)
+
+class ClusterJudger(Judger):
+    def __init__(self,name:str) -> None:
+        super().__init__()
+        self.name=name
+
+    def judge(self, y_hat, test_dataset: DataSet) -> None:
+        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
+        test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
+        self.logger.print("执行聚类判别")
+        self.fmi_score = fowlkes_mallows_score(test_Y,y_hat)
+        self.logger.print('聚类FMI评价分值为：%f' %(self.fmi_score))
+        self.ch_score = calinski_harabasz_score(test_X,y_hat)
+        self.logger.print('聚类calinski_harabaz指数为：%f'%(self.ch_score))
+
+        return super().judge(y_hat, test_dataset)
+
+class RegressionJudger(Judger):
+    def __init__(self,name:str) -> None:
+        super().__init__()
+        self.name=name
+
+    def judge(self, y_hat, test_dataset: DataSet) -> None:
+        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
+        self.logger.print("执行回归判别")
+        self.mse=mean_squared_error(test_Y,y_hat)
+        self.rmse=self.mse**0.5
+        self.mae=mean_absolute_error(test_Y,y_hat)
+        self.mape = metrics.mean_absolute_percentage_error(test_Y, y_hat)
+        self.r2=r2_score(test_Y,y_hat)
+        self.logger.print("均方误差={}".format(self.mse,1))
+        self.logger.print("均方根误差={}".format(self.rmse,1))
+        self.logger.print("平均绝对误差={}".format(self.mae,1))
+        self.logger.print("平均绝对百分比误差={}".format(self.mape,1))
+        # mape 输出不是 [0, 100] 范围内的百分比，值 100 并不意味着 100%，而是 1e2。此外，当y_true 很小(特定于指标)或当abs(y_true - y_pred) 很大(这对于大多数回归指标很常见)时，输出可以任意高。
+        self.logger.print("决定系数={}".format(self.r2,1))
+
+        return super().judge(y_hat, test_dataset)
+
 
 from sklearn.datasets import load_iris,load_boston,load_breast_cancer,load_diabetes,load_linnerud
 
@@ -266,32 +522,30 @@ if __name__ == '__main__':
         TestSplitter(0.7), 'ratio:0.7'
     ).register_splitter(
         TestSplitter(0.6), 'ratio:0.6'
-    ).register_splitter(
-        TestSplitter(0.5), 'ratio:0.5'
     ).register_model(
-        TestModel(1e-3,"决策树"),'决策树'
+        DecisionTreeModel(1e-3,"决策树"),'决策树'
     ).register_model(
-        TestModel(1e-3,"贝叶斯分类器"),'贝叶斯分类器'
+        BayesModel(1e-3,"贝叶斯分类器"),'贝叶斯分类器'
     ).register_model(
-        TestModel(1e-3,"梯度增强"),'梯度增强'
+        GradientBoostingModel(1e-3,"梯度增强"),'梯度增强'
     ).register_model(
-        TestModel(1e-3,"k-近邻"),'k-近邻'
+        KNeighborsModel(1e-3,"k-近邻"),'k-近邻'
     ).register_model(
-        TestModel(1e-3,"SVM"),'SVM'
+        SVMModel(1e-3,"SVM"),'SVM'
     ).register_model(
-        TestModel(1e-3,"随机森林"),'随机森林'
+        RandomForestModel(1e-3,"随机森林"),'随机森林'
     ).register_model(
-        TestModel(1e-3,"逻辑回归"),'逻辑回归'
+        LogisticRegressionModel(1e-3,"逻辑回归"),'逻辑回归'
     ).register_model(
-        TestModel(1e-3,"线性回归"),'线性回归'
+        LinearRegressionModel(1e-3,"线性回归"),'线性回归'
     ).register_model(
-        TestModel(1e-3,"XGboost"),'XGboost'
+        XGBRModel(1e-3,"XGboost"),'XGboost'
     ).register_model(
-        TestModel(1e-3,"K-means聚类"),'K-means聚类'
+        KmeansModel(1e-3,"K-means聚类"),'K-means聚类'
     ).register_judger(
-        TestJudger("分类判别"),'分类判别'
+        ClassifyJudger("分类判别"),'分类判别'
     ).register_judger(
-        TestJudger("聚类判别"),'聚类判别'
+        ClusterJudger("聚类判别"),'聚类判别'
     ).register_judger(
-        TestJudger("回归判别"),'回归判别'
+        RegressionJudger("回归判别"),'回归判别'
     ).start()
