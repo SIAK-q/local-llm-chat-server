@@ -9,6 +9,10 @@ class Logger:
 
     def print(self, *params, end='\n') -> Logger:
         return self
+    
+    def image(self, image) -> Logger:
+        return self
+
 
 class CmdLogger(Logger):
     def __init__(self, name=None) -> None:

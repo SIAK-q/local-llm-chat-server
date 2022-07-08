@@ -9,16 +9,16 @@ class Splitter(WebItem):
         super().__init__()
 
     # training data, test data
-    def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
+    def split(self, dataset: DataSet, ratio: float) -> Tuple[DataSet, DataSet]:
         pass
 
 class DirectSplitter(Splitter):
-    def __init__(self, ratio) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.ratio = float(ratio)
 
-    def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
+    def split(self, dataset: DataSet, ratio: float) -> Tuple[DataSet, DataSet]:
         length = len(dataset)
+        self.ratio = ratio
         
         return (
             ListDataSet([dataset[i] for i in range(math.floor(length * self.ratio))]), 

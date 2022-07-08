@@ -23,6 +23,9 @@ class WebLogger(Logger):
             }
         }))
         return super().print(*params, end=end)
+    
+    def image(self, image) -> Logger:
+        return super().image(image)
 
     def progess(self, percentage: float) -> Logger:
         return super().progess(percentage)
@@ -90,14 +93,17 @@ class WebManager(Manager):
                         conf = ManagerConfig(
                             params['datasetName'], 
                             params['splitterName'], 
+                            params['ratio'],
                             params['modelName'], 
-                            params['judgerName'], 
+                            params['judgerName'],
+                            
 
                             dataset_params={'logger': WebLogger(sendSocket, params['datasetName'])}, 
                             splitter_params={'logger': WebLogger(sendSocket, params['splitterName'])}, 
                             model_params={'logger': WebLogger(sendSocket, params['modelName'])}, 
                             judger_params={'logger': WebLogger(sendSocket, params['judgerName'])}, 
                         )
+
 
                         try:
                             self.run(conf)

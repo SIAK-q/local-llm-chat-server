@@ -15,7 +15,7 @@ sys.path.append(os.path.abspath(
     )
 ))
 
-from typing import Any, Tuple
+from typing import Any, List, Tuple
 import math
 
 from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
@@ -42,7 +42,7 @@ params = {
     'silent': True, 
     'nthread': -1
 }
-
+#@support_model()
 class TestDataset(ListDataSet):
     def __init__(self, num,name:str) -> None:
         super().__init__(num)
@@ -53,6 +53,9 @@ class TestDataset(ListDataSet):
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
+    
+    def support() -> List[str]:
+        return 
 
 class TrainTestDataset(ListDataSet):
     def __init__(self, item,name:str) -> None:
@@ -66,11 +69,11 @@ class TrainTestDataset(ListDataSet):
         return self.item[idx]
 
 class TestSplitter(Splitter):
-    def __init__(self, ratio) -> None:
+    def __init__(self) -> None:
         super().__init__()
+        
+    def split(self, dataset: DataSet, ratio:float) -> Tuple[DataSet, DataSet]:
         self.ratio = ratio
-
-    def split(self, dataset: DataSet) -> Tuple[DataSet, DataSet]:
         if dataset.name=="鸢尾花" or dataset.name=="乳腺癌":
             y=[dataset[i][1] for i in range(len(dataset))]
             y_lable=list(set(y))
@@ -479,6 +482,7 @@ class ClusterJudger(Judger):
         self.ch_score = calinski_harabasz_score(test_X,y_hat)
         self.logger.print('聚类calinski_harabaz指数为：%f'%(self.ch_score))
 
+
         return super().judge(y_hat, test_dataset)
 
 class RegressionJudger(Judger):
@@ -515,13 +519,13 @@ if __name__ == '__main__':
     ).register_dataset(
         TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())],"波士顿"), '波士顿房价数据集'
     ).register_splitter(
-        TestSplitter(0.9), 'ratio:0.9'
-    ).register_splitter(
-        TestSplitter(0.8), 'ratio:0.8'
-    ).register_splitter(
-        TestSplitter(0.7), 'ratio:0.7'
-    ).register_splitter(
-        TestSplitter(0.6), 'ratio:0.6'
+        TestSplitter(), 'ratio'
+    # ).register_splitter(
+    #     TestSplitter(0.8), 'ratio:0.8'
+    # ).register_splitter(
+    #     TestSplitter(0.7), 'ratio:0.7'
+    # ).register_splitter(
+    #     TestSplitter(0.6), 'ratio:0.6'
     ).register_model(
         DecisionTreeModel(1e-3,"决策树"),'决策树'
     ).register_model(

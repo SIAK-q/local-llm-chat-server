@@ -13,6 +13,7 @@ class ManagerConfig:
 
     dataset: str
     splitter: str
+    ratio: float
     model: str
     judger: str
 
@@ -21,8 +22,9 @@ class ManagerConfig:
     model_params: Dict[str, str]
     judger_params: Dict[str, str]
 
-    def __init__(self, dataset, splitter, model, judger, dataset_params=None, splitter_params=None, model_params=None, judger_params=None) -> None:
+    def __init__(self, dataset, splitter, ratio,model, judger, dataset_params=None, splitter_params=None, model_params=None, judger_params=None) -> None:
         self.dataset = dataset
+        self.ratio = ratio
         self.splitter = splitter
         self.model = model
         self.judger = judger
@@ -105,7 +107,9 @@ class Manager:
             setattr(dataset, key, value)
 
         assert conf.splitter in self.splitters.keys(), 'unknown splitter class name'
+        self.ratio = conf.ratio
         splitter = self.splitters[conf.splitter]
+        
         for key, value in conf.splitter_params.items():
             setattr(splitter, key, value)
 
@@ -119,7 +123,7 @@ class Manager:
         for key, value in conf.judger_params.items():
             setattr(judger, key, value)
 
-        train_data, test_data = splitter.split(dataset)
+        train_data, test_data = splitter.split(dataset, self.ratio)
         model.train(train_data)
         y_hat = model.test(test_data)
         judger.judge(y_hat, test_data)
