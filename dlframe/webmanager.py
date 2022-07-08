@@ -7,6 +7,7 @@ import json
 import queue
 import threading
 import traceback
+import base64
 
 class WebLogger(Logger):
     def __init__(self, socket, name='untitled') -> None:
@@ -25,6 +26,20 @@ class WebLogger(Logger):
         return super().print(*params, end=end)
     
     def image(self, image) -> Logger:
+        
+        with open(image,'rb') as f:
+            base64code = base64.b64encode(f.read())
+
+        # print("*********")
+        # print(base64code) 
+        # print("***************")
+        self.socket.send(json.dumps({
+            'status': 200, 
+            'type': 'image', 
+            'data': {
+                'content': '[{}]: '.format(base64code)
+            }
+        }))
         return super().image(image)
 
     def progess(self, percentage: float) -> Logger:

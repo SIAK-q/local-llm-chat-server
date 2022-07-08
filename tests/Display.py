@@ -111,6 +111,7 @@ class TestSplitter(Splitter):
         trainingSet = TrainTestDataset(trainData,dataset.name)
         testingSet = TrainTestDataset(testData,dataset.name)
 
+        self.logger.print("ratio = {}".format(self.ratio))
         self.logger.print("split!")
         self.logger.print("training_len = {}".format(len(trainingSet)))
         return trainingSet, testingSet
@@ -464,6 +465,7 @@ class ClassifyJudger(Judger):
         self.logger.print('分类kappa系数值为：%f' %(self.kappa))
         self.ham_distance=hamming_loss(test_Y,y_hat)
         self.logger.print('hamming距离值为：%f' % (self.ham_distance))
+        #self.logger.image('D:/DevC++/interesting/test.png')
 
         return super().judge(y_hat, test_dataset)
 
