@@ -1,3 +1,4 @@
+from ast import List
 from dlframe.webitem import WebItem
 
 from typing import Any
@@ -11,6 +12,9 @@ class DataSet(WebItem):
 
     def __getitem__(self, idx: int) -> Any:
         pass
+
+    def __getcontent__(self)-> List:
+        return []
 
 class ListDataSet(DataSet):
     def __init__(self, innerList) -> None:

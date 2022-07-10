@@ -96,6 +96,7 @@ class WebManager(Manager):
                             'type': 'overview', 
                             'data': {
                                 'datasets': list(self.datasets.keys()), 
+                                'details':{name: content.__getcontent__() for name, content in self.datasets.items()},
                                 'splitters': list(self.splitters.keys()), 
                                 'models': list(self.models.keys()), 
                                 'judgers': list(self.judgers.keys())

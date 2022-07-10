@@ -53,9 +53,56 @@ class TestDataset(ListDataSet):
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
-    
+    def __getcontent__(self) -> List:
+        return self.num
     def support() -> List[str]:
-        return 
+        return []
+
+class IrisDataset(DataSet):
+    def __init__(self) -> None:
+        super().__init__()
+        Iris = load_iris()
+        self.num = [list(t) for t in zip(Iris.data.tolist(),Iris.target.tolist())]
+        self.names = list(Iris.feature_names)
+    
+    def __getcontent__(self) -> List:
+        return [self.names, self.num]
+    def __len__(self) -> int:
+        return len(self.num)
+    def __getitem__(self, idx: int) -> Any:
+        return self.num[idx]  
+
+class BostonDataset(DataSet):
+    def __init__(self) -> None:
+        super().__init__()
+        boston = load_boston()
+        self.num = [list(t) for t in zip(boston.data.tolist(),boston.target.tolist())]
+        self.names = list(boston.feature_names)
+    
+    def __getcontent__(self) -> List:
+        return [self.names, self.num]
+    def __len__(self) -> int:
+        return len(self.num)
+    def __getitem__(self, idx: int) -> Any:
+        return self.num[idx]  
+    def support() -> List[str]:
+        return []
+
+class BreastCancerDataset(DataSet):
+    def __init__(self) -> None:
+        super().__init__()
+        breastCancer = load_breast_cancer()
+        self.num = [list(t) for t in zip(breastCancer.data.tolist(),breastCancer.target.tolist())]
+        self.names = list(breastCancer.feature_names)
+    
+    def __getcontent__(self) -> List:
+        return [self.names, self.num]
+    def __len__(self) -> int:
+        return len(self.num)
+    def __getitem__(self, idx: int) -> Any:
+        return self.num[idx]  
+    def support() -> List[str]:
+        return []
 
 class TrainTestDataset(ListDataSet):
     def __init__(self, item,name:str) -> None:
@@ -515,11 +562,11 @@ from sklearn.datasets import load_iris,load_boston,load_breast_cancer,load_diabe
 
 if __name__ == '__main__':
     WebManager().register_dataset(
-        TestDataset([list(t) for t in zip(load_iris().data.tolist(),load_iris().target.tolist())],"鸢尾花"), '鸢尾花数据集'
+        IrisDataset(), '鸢尾花数据集'
     ).register_dataset(
-        TestDataset([list(t) for t in zip(load_breast_cancer().data.tolist(),load_breast_cancer().target.tolist())],"乳腺癌"), '威斯康辛州乳腺癌数据集'
+        BreastCancerDataset(), '威斯康辛州乳腺癌数据集'
     ).register_dataset(
-        TestDataset([list(t) for t in zip(load_boston().data.tolist(),load_boston().target.tolist())],"波士顿"), '波士顿房价数据集'
+        BostonDataset(), '波士顿房价数据集'
     ).register_splitter(
         TestSplitter(), 'ratio'
     # ).register_splitter(
