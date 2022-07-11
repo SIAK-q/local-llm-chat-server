@@ -55,7 +55,7 @@ class TestDataset(ListDataSet):
         return self.num[idx]
     def __getcontent__(self) -> List:
         return self.num
-    def support() -> List[str]:
+    def support(self) -> List[str]:
         return []
 
 class IrisDataset(DataSet):
@@ -87,7 +87,7 @@ class BostonDataset(DataSet):
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]  
-    def support() -> List[str]:
+    def support(self)-> List[str]:
         return []
 
 class BreastCancerDataset(DataSet):
@@ -103,7 +103,39 @@ class BreastCancerDataset(DataSet):
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]  
-    def support() -> List[str]:
+    def support(self) -> List[str]:
+        return []
+
+class WineDataset(DataSet):
+    def __init__(self, name:str) -> None:
+        super().__init__()
+        wine = load_wine()
+        self.num = [list(t) for t in zip(wine.data.tolist(),wine.target.tolist())]
+        self.names = list(wine.feature_names)
+        self.name = name
+    def __getcontent__(self) -> List:
+        return [self.names, self.num]
+    def __len__(self) -> int:
+        return len(self.num)
+    def __getitem__(self, idx: int) -> Any:
+        return self.num[idx]
+    def support(self) -> List[str]:
+        return []
+
+class DiabetesDataset(DataSet):
+    def __init__(self, name:str) -> None:
+        super().__init__()
+        diabetes = load_diabetes()
+        self.num = [list(t) for t in zip(diabetes.data.tolist(),diabetes.target.tolist())]
+        self.names = list(diabetes.feature_names)
+        self.name = name
+    def __getcontent__(self) -> List:
+        return [self.names, self.num]
+    def __len__(self) -> int:
+        return len(self.num)
+    def __getitem__(self, idx: int) -> Any:
+        return self.num[idx]
+    def support(self) -> List[str]:
         return []
 
 class TrainTestDataset(ListDataSet):
@@ -123,7 +155,7 @@ class TestSplitter(Splitter):
         
     def split(self, dataset: DataSet, ratio:float) -> Tuple[DataSet, DataSet]:
         self.ratio = ratio
-        if dataset.name=="鸢尾花" or dataset.name=="乳腺癌":
+        if dataset.name=="鸢尾花" or dataset.name=="乳腺癌" or dataset.name=="红酒":
             y=[dataset[i][1] for i in range(len(dataset))]
             y_lable=list(set(y))
             k=len(y_lable)
@@ -172,89 +204,88 @@ from sklearn.ensemble import GradientBoostingRegressor,GradientBoostingClassifie
 from sklearn.ensemble import RandomForestRegressor,RandomForestClassifier
 from sklearn.cluster import KMeans
 
-
-class TestModel(Model):
-    def __init__(self, learning_rate,name:str) -> None:
-        super().__init__()
-        self.learning_rate = learning_rate
-        self.name=name
-
-    def train(self, trainDataset: DataSet) -> None:
-        train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
-        train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
-        self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        if self.name=="决策树":
-            self.jueceshuModel = DecisionTreeClassifier()
-            self.jueceshuModel.fit(train_X,train_Y)
-            self.logger.print("执行决策树算法")
-        if self.name=="贝叶斯分类器":
-            self.beyesiModel=GaussianNB()
-            self.beyesiModel.fit(train_X, train_Y)
-            self.logger.print("执行贝叶斯分类器算法")
-        if self.name=="梯度增强":
-            self.tiduzengqiangModel=GradientBoostingClassifier()
-            self.tiduzengqiangModel.fit(train_X,train_Y)
-            self.logger.print("执行梯度增强算法")
-        if self.name=="线性回归":
-            self.LrModel=LinearRegression()
-            self.LrModel.fit(train_X,train_Y)
-            self.logger.print("执行线性回归算法")
-        if self.name=="k-近邻":
-            self.knn = KNeighborsClassifier() 
-            self.knn.fit(train_X,train_Y) 
-            self.logger.print("执行k-近邻算法")
-        if self.name=="XGboost":
-            # self.xgb_model = XGboost()
-            # self.xgb_model.fit(train_X,train_Y)
-            self.reg = XGBR(n_estimators=100)
-            self.reg.fit(train_X,train_Y)
-            self.logger.print("执行XGboost算法")
-        if self.name=="SVM":
-            self.classifier = svm.SVC(C=2, kernel='rbf', gamma=10, decision_function_shape='ovo') 
-            self.classifier.fit(train_X,train_Y) 
-            self.logger.print("执行SVM算法")
-        if self.name=="随机森林":
-            self.suijisenlinModel=RandomForestClassifier()
-            self.suijisenlinModel.fit(train_X,train_Y)
-            self.logger.print("执行随机森林算法")
-        if self.name == "逻辑回归":
-            self.luojihuiguiModel=LogisticRegression()
-            self.luojihuiguiModel.fit(train_X,train_Y)
-            self.logger.print("执行逻辑回归算法")
-        if self.name == "K-means聚类":
-            self.kmeansModel=KMeans()
-            self.kmeansModel.fit(train_X,train_Y)
-            self.logger.print("执行K-means聚类算法")
-
-        return super().train(trainDataset)
-
-    def test(self, testDataset: DataSet) -> Any:
-        test_X = [testDataset[i][0] for i in range(len(testDataset))]
-        test_ans = [testDataset[i][1] for i in range(len(testDataset))]
-        if self.name=="决策树":
-            test_Y=self.jueceshuModel.predict(test_X)
-        if self.name=="贝叶斯分类器":
-            test_Y = self.beyesiModel.predict(test_X)
-        if self.name=="梯度增强":
-            test_Y=self.tiduzengqiangModel.predict(test_X)
-        if self.name=="线性回归":
-            test_Y=self.LrModel.predict(test_X)
-        if self.name=="k-近邻":
-            test_Y = self.knn.predict(test_X)
-        if self.name=="XGboost":          
-            test_Y=self.reg.predict(test_X)
-        if self.name=="SVM":
-            test_Y = self.classifier.predict(test_X)
-        if self.name=="随机森林":
-            test_Y=self.suijisenlinModel.predict(test_X)
-        if self.name=="逻辑回归":
-            test_Y=self.luojihuiguiModel.predict(test_X)
-        if self.name=="K-means聚类":
-            test_Y=self.kmeansModel.predict(test_X)
-
-        self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
-        return test_Y
+# class TestModel(Model):
+#     def __init__(self, learning_rate,name:str) -> None:
+#         super().__init__()
+#         self.learning_rate = learning_rate
+#         self.name=name
+#
+#     def train(self, trainDataset: DataSet) -> None:
+#         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
+#         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
+#         self.logger.print("trainging, lr = {}".format(self.learning_rate))
+#         if self.name=="决策树":
+#             self.jueceshuModel = DecisionTreeClassifier()
+#             self.jueceshuModel.fit(train_X,train_Y)
+#             self.logger.print("执行决策树算法")
+#         if self.name=="贝叶斯分类器":
+#             self.beyesiModel=GaussianNB()
+#             self.beyesiModel.fit(train_X, train_Y)
+#             self.logger.print("执行贝叶斯分类器算法")
+#         if self.name=="梯度增强":
+#             self.tiduzengqiangModel=GradientBoostingClassifier()
+#             self.tiduzengqiangModel.fit(train_X,train_Y)
+#             self.logger.print("执行梯度增强算法")
+#         if self.name=="线性回归":
+#             self.LrModel=LinearRegression()
+#             self.LrModel.fit(train_X,train_Y)
+#             self.logger.print("执行线性回归算法")
+#         if self.name=="k-近邻":
+#             self.knn = KNeighborsClassifier()
+#             self.knn.fit(train_X,train_Y)
+#             self.logger.print("执行k-近邻算法")
+#         if self.name=="XGboost":
+#             # self.xgb_model = XGboost()
+#             # self.xgb_model.fit(train_X,train_Y)
+#             self.reg = XGBR(n_estimators=100)
+#             self.reg.fit(train_X,train_Y)
+#             self.logger.print("执行XGboost算法")
+#         if self.name=="SVM":
+#             self.classifier = svm.SVC(C=2, kernel='rbf', gamma=10, decision_function_shape='ovo')
+#             self.classifier.fit(train_X,train_Y)
+#             self.logger.print("执行SVM算法")
+#         if self.name=="随机森林":
+#             self.suijisenlinModel=RandomForestClassifier()
+#             self.suijisenlinModel.fit(train_X,train_Y)
+#             self.logger.print("执行随机森林算法")
+#         if self.name == "逻辑回归":
+#             self.luojihuiguiModel=LogisticRegression()
+#             self.luojihuiguiModel.fit(train_X,train_Y)
+#             self.logger.print("执行逻辑回归算法")
+#         if self.name == "K-means聚类":
+#             self.kmeansModel=KMeans()
+#             self.kmeansModel.fit(train_X,train_Y)
+#             self.logger.print("执行K-means聚类算法")
+#
+#         return super().train(trainDataset)
+#
+#     def test(self, testDataset: DataSet) -> Any:
+#         test_X = [testDataset[i][0] for i in range(len(testDataset))]
+#         test_ans = [testDataset[i][1] for i in range(len(testDataset))]
+#         if self.name=="决策树":
+#             test_Y=self.jueceshuModel.predict(test_X)
+#         if self.name=="贝叶斯分类器":
+#             test_Y = self.beyesiModel.predict(test_X)
+#         if self.name=="梯度增强":
+#             test_Y=self.tiduzengqiangModel.predict(test_X)
+#         if self.name=="线性回归":
+#             test_Y=self.LrModel.predict(test_X)
+#         if self.name=="k-近邻":
+#             test_Y = self.knn.predict(test_X)
+#         if self.name=="XGboost":
+#             test_Y=self.reg.predict(test_X)
+#         if self.name=="SVM":
+#             test_Y = self.classifier.predict(test_X)
+#         if self.name=="随机森林":
+#             test_Y=self.suijisenlinModel.predict(test_X)
+#         if self.name=="逻辑回归":
+#             test_Y=self.luojihuiguiModel.predict(test_X)
+#         if self.name=="K-means聚类":
+#             test_Y=self.kmeansModel.predict(test_X)
+#
+#         self.logger.print("testing")
+#         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+#         return test_Y
 
 class DecisionTreeModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -560,13 +591,17 @@ class RegressionJudger(Judger):
         return super().judge(y_hat, test_dataset)
 
 
-from sklearn.datasets import load_iris,load_boston,load_breast_cancer,load_diabetes,load_linnerud
+from sklearn.datasets import load_iris,load_boston,load_breast_cancer,load_diabetes,load_wine
 
 if __name__ == '__main__':
     WebManager().register_dataset(
         IrisDataset('鸢尾花'), '鸢尾花数据集'
     ).register_dataset(
         BreastCancerDataset('乳腺癌'), '威斯康辛州乳腺癌数据集'
+    ).register_dataset(
+        WineDataset('红酒'), '红酒数据集'
+    ).register_dataset(
+        DiabetesDataset('糖尿病'), '糖尿病数据集'
     ).register_dataset(
         BostonDataset('波士顿'), '波士顿房价数据集'
     ).register_splitter(
