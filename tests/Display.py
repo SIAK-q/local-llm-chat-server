@@ -5,6 +5,7 @@ import numpy
 from sklearn import metrics
 from sklearn.metrics import accuracy_score,jaccard_score,hinge_loss,hamming_loss,cohen_kappa_score,calinski_harabasz_score, fowlkes_mallows_score, mean_absolute_error, mean_squared_error, r2_score
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBRegressor as XGBR
 
@@ -149,7 +150,7 @@ class TrainTestDataset(ListDataSet):
     def __getitem__(self, idx: int) -> Any:
         return self.item[idx]
 
-class TestSplitter(Splitter):
+class HoldOutSplitter(Splitter):
     def __init__(self) -> None:
         super().__init__()
         
@@ -196,6 +197,37 @@ class TestSplitter(Splitter):
         self.logger.print("split!")
         self.logger.print("training_len = {}".format(len(trainingSet)))
         return trainingSet, testingSet
+
+class KFoldSplitter(Splitter):
+    def __init__(self) -> None:
+        super().__init__()
+        
+    def split(self, dataset: DataSet, k:int) -> Tuple[DataSet, DataSet]:
+        self.k = k
+        if dataset.name=="鸢尾花" or dataset.name=="乳腺癌" or dataset.name=="红酒":
+            y=[dataset[i][1] for i in range(len(dataset))]
+
+            trainData=list()
+            testData=list()
+            skf = StratifiedKFold(n_splits=self.k)
+            for train_index, test_index in skf.split(dataset, y):                
+                trainData = dataset[train_index]
+                testData = dataset[test_index]
+            
+        else:
+            kf = KFold(self.k)
+            for train_index, test_index in kf.split(dataset):
+                trainData = dataset[train_index]
+                testData = dataset[test_index]
+
+        trainingSet = TrainTestDataset(trainData,dataset.name)
+        testingSet = TrainTestDataset(testData,dataset.name)
+
+        self.logger.print("k = {}".format(self.k))
+        self.logger.print("split!")
+        self.logger.print("training_len = {}".format(len(trainingSet)))
+        return trainingSet, testingSet
+
 
 from sklearn.tree import DecisionTreeClassifier,DecisionTreeRegressor
 from sklearn.naive_bayes import GaussianNB
@@ -605,13 +637,9 @@ if __name__ == '__main__':
     ).register_dataset(
         BostonDataset('波士顿'), '波士顿房价数据集'
     ).register_splitter(
-        TestSplitter(), 'ratio'
-    # ).register_splitter(
-    #     TestSplitter(0.8), 'ratio:0.8'
-    # ).register_splitter(
-    #     TestSplitter(0.7), 'ratio:0.7'
-    # ).register_splitter(
-    #     TestSplitter(0.6), 'ratio:0.6'
+        HoldOutSplitter(), '留出法'
+    ).register_splitter(
+        KFoldSplitter(), 'K折交叉验证'
     ).register_model(
         DecisionTreeModel(1e-3,"决策树"),'决策树'
     ).register_model(
