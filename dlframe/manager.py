@@ -14,7 +14,7 @@ class ManagerConfig:
     dataset: str
     splitter: str
     ratio: Any
-    model: str
+    model: Dict[str, str]
     judger: str
 
     dataset_params: Dict[str, str]
@@ -26,7 +26,7 @@ class ManagerConfig:
         self.dataset = dataset
         self.ratio = ratio
         self.splitter = splitter
-        self.model = model
+        self.model = {} if model is None else model
         self.judger = judger
 
         self.dataset_params = {} if dataset_params is None else dataset_params
@@ -113,8 +113,9 @@ class Manager:
         for key, value in conf.splitter_params.items():
             setattr(splitter, key, value)
 
-        assert conf.model in self.models.keys(), 'unknown model class name'
-        model = self.models[conf.model]
+        assert conf.model.get('name') in self.models.keys(), 'unknown model class name'
+        model = self.models[conf.model.get('name')]
+
         for key, value in conf.model_params.items():
             setattr(model, key, value)
 
@@ -124,8 +125,8 @@ class Manager:
             setattr(judger, key, value)
 
         train_data, test_data = splitter.split(dataset, self.ratio)
-        model.train(train_data)
-        y_hat = model.test(test_data)
+        model.train(train_data, conf.model)
+        y_hat = model.test(test_data, conf.model)
         judger.judge(y_hat, test_data)
 
 class CmdManager(Manager):

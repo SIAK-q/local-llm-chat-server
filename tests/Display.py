@@ -1,3 +1,4 @@
+from ast import Dict
 import os
 import sys
 
@@ -322,15 +323,15 @@ class DecisionTreeModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, param: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.jueceshuModel = DecisionTreeClassifier()
         self.jueceshuModel.fit(train_X,train_Y)
         self.logger.print("执行决策树算法")
-        return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+        return super().train(trainDataset, param)
+    def test(self, testDataset: DataSet, param: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.jueceshuModel.predict(test_X)
         self.logger.print("testing")
