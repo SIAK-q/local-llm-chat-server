@@ -207,18 +207,16 @@ class KFoldSplitter(Splitter):
         if dataset.name=="鸢尾花" or dataset.name=="乳腺癌" or dataset.name=="红酒":
             y=[dataset[i][1] for i in range(len(dataset))]
 
-            trainData=list()
-            testData=list()
             skf = StratifiedKFold(n_splits=self.k)
             for train_index, test_index in skf.split(dataset, y):                
-                trainData = dataset[train_index]
-                testData = dataset[test_index]
+                trainData = np.array(dataset)[train_index]
+                testData = np.array(dataset)[test_index]
             
         else:
             kf = KFold(self.k)
             for train_index, test_index in kf.split(dataset):
-                trainData = dataset[train_index]
-                testData = dataset[test_index]
+                trainData = np.array(dataset)[train_index]
+                testData = np.array(dataset)[test_index]
 
         trainingSet = TrainTestDataset(trainData,dataset.name)
         testingSet = TrainTestDataset(testData,dataset.name)

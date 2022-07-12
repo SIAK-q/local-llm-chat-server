@@ -9,7 +9,7 @@ class Splitter(WebItem):
         super().__init__()
 
     # training data, test data
-    def split(self, dataset: DataSet, ratio: float) -> Tuple[DataSet, DataSet]:
+    def split(self, dataset: DataSet, ratio) -> Tuple[DataSet, DataSet]:
         pass
 
 class DirectSplitter(Splitter):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 from email.policy import default
 
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Tuple
 
 from dlframe.dataset import DataSet
 from dlframe.splitter import Splitter
@@ -13,7 +13,7 @@ class ManagerConfig:
 
     dataset: str
     splitter: str
-    ratio: float
+    ratio: Any
     model: str
     judger: str
 
