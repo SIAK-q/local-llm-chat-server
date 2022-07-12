@@ -1,3 +1,4 @@
+from ast import List
 from typing import Any, Dict
 from dlframe.webitem import WebItem
 from dlframe.dataset import DataSet
@@ -11,3 +12,6 @@ class Model(WebItem):
 
     def test(self, testDataset: DataSet, param: Dict) -> Any:
         pass
+
+    def __getparams__(self)-> Dict:
+        return {}

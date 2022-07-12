@@ -99,9 +99,12 @@ class WebManager(Manager):
                                 'details':{name: content.__getcontent__() for name, content in self.datasets.items()},
                                 'splitters': list(self.splitters.keys()), 
                                 'models': list(self.models.keys()), 
+                                'params':{name: content.__getparams__() for name, content in self.models.items()},
                                 'judgers': list(self.judgers.keys())
                             }
+
                         })
+                    
                         await socket.send(response)
 
                     elif message['type'] == 'run':
