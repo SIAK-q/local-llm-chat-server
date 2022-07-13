@@ -24,20 +24,6 @@ from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
 from sklearn import datasets, svm
 import numpy as np
 
-params = {
-    'eta': 0.02,  #lr
-    'num_class':3,
-    'max_depth': 6, 
-    'min_child_weight':3,#最小叶子节点样本权重和
-    'gamma':0, #指定节点分裂所需的最小损失函数下降值。
-    'subsample': 0.7,  #控制对于每棵树，随机采样的比例
-    'colsample_bytree': 0.3,  #用来控制每棵随机采样的列数的占比 (每一列是一个特征)。
-    'lambda':2,
-    'objective': 'multi:softmax', 
-    'eval_metric': 'mlogloss', 
-    'silent': True, 
-    'nthread': -1
-}
 #@support_model()
 class TestDataset(ListDataSet):
     def __init__(self, num,name:str) -> None:
@@ -60,10 +46,11 @@ class IrisDataset(DataSet):
         Iris = load_iris()
         self.num = [list(t) for t in zip(Iris.data.tolist(),Iris.target.tolist())]
         self.names = list(Iris.feature_names)
+        self.labels = list(Iris.target_names)
         self.name = name
     
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+        return [self.names, self.labels, self.num]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
@@ -78,7 +65,7 @@ class BostonDataset(DataSet):
         self.name = name
     
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+         return [self.names, self.num]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
@@ -92,9 +79,10 @@ class BreastCancerDataset(DataSet):
         breastCancer = load_breast_cancer()
         self.num = [list(t) for t in zip(breastCancer.data.tolist(),breastCancer.target.tolist())]
         self.names = list(breastCancer.feature_names)
+        self.labels = list(breastCancer.target_names)
         self.name = name
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+        return [self.names, self.labels, self.num]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
@@ -108,9 +96,10 @@ class WineDataset(DataSet):
         wine = load_wine()
         self.num = [list(t) for t in zip(wine.data.tolist(),wine.target.tolist())]
         self.names = list(wine.feature_names)
+        self.labels = list(wine.target_names)
         self.name = name
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+         return [self.names, self.labels, self.num]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
