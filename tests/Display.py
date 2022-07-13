@@ -9,6 +9,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBRegressor as XGBR
+from sklearn.decomposition import PCA  
 
 
 sys.path.append(os.path.abspath(
@@ -230,7 +231,7 @@ class DecisionTreeModel(Model):
         self.jueceshuModel = DecisionTreeClassifier(criterion=params.get('criterion'), splitter=params.get('splitter'), max_depth=params.get('max_depth'), min_samples_split=params.get('min_samples_split'), min_samples_leaf=params.get('min_samples_leaf'), max_features=params.get('max_features'))
         self.jueceshuModel.fit(train_X,train_Y)
         self.logger.print("执行决策树算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, param: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.jueceshuModel.predict(test_X)
@@ -241,7 +242,7 @@ class DecisionTreeModel(Model):
         params = {}
         params['criterion']='gini'
         params['splitter']="best"
-        params['max_depth'] = "None"
+        params['max_depth'] = None
         params['min_samples_split'] = 2
         params['min_samples_leaf'] = 1
         params['max_features'] = "sqrt"
@@ -258,7 +259,7 @@ class BayesModel(Model):
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.beyesiModel=GaussianNB(priors=params.get('priors'),var_smoothing=params.get('var_smoothing'))
         self.beyesiModel.fit(train_X, train_Y)
-        self.logger.print("执行贝叶斯分类器算法")
+        self.logger.print("执行贝叶斯分类器算法", params)
         return super().train(trainDataset)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
@@ -268,7 +269,7 @@ class BayesModel(Model):
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
-        params['priors']='None'
+        params['priors']=None
         params['var_smoothing']=1e-09
         return params
 
@@ -284,7 +285,7 @@ class GradientBoostingModel(Model):
         self.tiduzengqiangModel=GradientBoostingClassifier(loss=params.get('loss'),learning_rate=params.get('learning_rate'),n_estimators=params.get('n_estimators'),subsample=params.get('subsample'),criterion=params.get('criterion'),min_samples_leaf=params.get('min_samples_leaf'),min_weight_fraction_leaf=params.get('min_weight_fraction_leaf'))
         self.tiduzengqiangModel.fit(train_X,train_Y)
         self.logger.print("执行梯度增强算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.tiduzengqiangModel.predict(test_X)
@@ -314,7 +315,7 @@ class LinearRegressionModel(Model):
         self.LrModel=LinearRegression(fit_intercept=params.get('fit_intercept'), normalize=params.get('normalize'), copy_X=params.get('copy_X'), positive=params.get('positive'))
         self.LrModel.fit(train_X,train_Y)
         self.logger.print("执行线性回归算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.LrModel.predict(test_X)
@@ -341,7 +342,7 @@ class KNeighborsModel(Model):
         self.knn = KNeighborsClassifier(n_neighbors=params.get('n_neighbors'),weights=params.get('weights'),algorithm=params.get('algorithm'),leaf_size=params.get('leaf_size'),p=params.get('p'))
         self.knn.fit(train_X,train_Y) 
         self.logger.print("执行k-近邻算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.knn.predict(test_X)
@@ -369,7 +370,7 @@ class XGBRModel(Model):
         self.reg = XGBR(n_estimators=params.get('n_estimators'),learning_rate=params.get('learning_rate'))
         self.reg.fit(train_X,train_Y,early_stopping_rounds=params.get['early_stopping_rounds'])
         self.logger.print("执行XGboost算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.reg.predict(test_X)
@@ -395,7 +396,7 @@ class SVMModel(Model):
         self.classifier = svm.SVC(C=params.get('C'),kernel=params.get('kernel'),degree=params.get('degree'),gamma=params.get('gamma'),coef0=params.get('coef0'),shrinking=params.get('shrinking'))
         self.classifier.fit(train_X,train_Y) 
         self.logger.print("执行SVM算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.classifier.predict(test_X)
@@ -425,7 +426,7 @@ class RandomForestModel(Model):
         self.suijisenlinModel=RandomForestClassifier(n_estimators=param.get('n_estimators'), criterion=param.get('criterion'), max_depth=param.get('max_depth'), min_samples_split=param.get('min_samples_split'), min_samples_leaf=param.get('min_samples_leaf'),  max_features=param.get('max_features'))
         self.suijisenlinModel.fit(train_X,train_Y)
         self.logger.print("执行随机森林算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, param: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.suijisenlinModel.predict(test_X)
@@ -454,7 +455,7 @@ class LogisticRegressionModel(Model):
         self.luojihuiguiModel=LogisticRegression(penalty=params.get('penalty'),  tol=params.get('tol'), C=params.get('C'), fit_intercept=params.get('fit_intercept'), solver=params.get('solver'), max_iter=params.get('max_iter'))
         self.luojihuiguiModel.fit(train_X,train_Y)
         self.logger.print("执行逻辑回归算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.luojihuiguiModel.predict(test_X)
@@ -483,7 +484,7 @@ class KmeansModel(Model):
         self.kmeansModel=KMeans(n_clusters=params['n_clusters'],init=params['init'], n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'], algorithm=params['algorithm'])
         self.kmeansModel.fit(train_X,train_Y)
         self.logger.print("执行K-means聚类算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.kmeansModel.predict(test_X)
@@ -550,6 +551,7 @@ class ClassifyJudger(Judger):
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
         self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
         test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
         self.logger.print("执行分类判别")
         self.accuancy_score=accuracy_score(test_Y,y_hat)
@@ -587,6 +589,7 @@ class RegressionJudger(Judger):
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
         self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
         test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
         self.logger.print("执行回归判别")
         self.mse=mean_squared_error(test_Y,y_hat)
@@ -600,6 +603,10 @@ class RegressionJudger(Judger):
         self.logger.print("平均绝对百分比误差={}".format(self.mape,1))
         # mape 输出不是 [0, 100] 范围内的百分比，值 100 并不意味着 100%，而是 1e2。此外，当y_true 很小(特定于指标)或当abs(y_true - y_pred) 很大(这对于大多数回归指标很常见)时，输出可以任意高。
         self.logger.print("决定系数={}".format(self.r2,1))
+
+        pca = PCA(n_components = 1)
+        pca.fit(test_X)
+        X_new = pca.transform(test_X)
 
         return super().judge(y_hat, test_dataset)
 
