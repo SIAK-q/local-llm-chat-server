@@ -223,14 +223,14 @@ class DecisionTreeModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet, param: Dict) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.jueceshuModel = DecisionTreeClassifier(criterion=params.get('criterion'), splitter=params.get('splitter'), max_depth=params.get('max_depth'), min_samples_split=params.get('min_samples_split'), min_samples_leaf=params.get('min_samples_leaf'), max_features=params.get('max_features'))
         self.jueceshuModel.fit(train_X,train_Y)
         self.logger.print("执行决策树算法")
-        return super().train(trainDataset, param)
+        return super().train(trainDataset)
     def test(self, testDataset: DataSet, param: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.jueceshuModel.predict(test_X)
@@ -252,7 +252,7 @@ class BayesModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
@@ -260,7 +260,7 @@ class BayesModel(Model):
         self.beyesiModel.fit(train_X, train_Y)
         self.logger.print("执行贝叶斯分类器算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.beyesiModel.predict(test_X)
         self.logger.print("testing")
@@ -277,7 +277,7 @@ class GradientBoostingModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
@@ -285,7 +285,7 @@ class GradientBoostingModel(Model):
         self.tiduzengqiangModel.fit(train_X,train_Y)
         self.logger.print("执行梯度增强算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.tiduzengqiangModel.predict(test_X)
         self.logger.print("testing")
@@ -334,7 +334,7 @@ class KNeighborsModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
@@ -342,7 +342,7 @@ class KNeighborsModel(Model):
         self.knn.fit(train_X,train_Y) 
         self.logger.print("执行k-近邻算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.knn.predict(test_X)
         self.logger.print("testing")
@@ -388,7 +388,7 @@ class SVMModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
@@ -396,7 +396,7 @@ class SVMModel(Model):
         self.classifier.fit(train_X,train_Y) 
         self.logger.print("执行SVM算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.classifier.predict(test_X)
         self.logger.print("testing")
