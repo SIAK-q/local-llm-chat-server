@@ -16,6 +16,10 @@ class DataSet(WebItem):
     def __getcontent__(self)-> List:
         return []
 
+    def __getnewcontent__(self):
+        pass
+
+
 class ListDataSet(DataSet):
     def __init__(self, innerList) -> None:
         super().__init__()

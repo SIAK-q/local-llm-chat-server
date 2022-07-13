@@ -9,7 +9,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import KFold, StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 from xgboost import XGBRegressor as XGBR
-
+from sklearn.decomposition import PCA
 
 sys.path.append(os.path.abspath(
     os.path.join(
@@ -67,7 +67,20 @@ class IrisDataset(DataSet):
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
-        return self.num[idx]  
+        return self.num[idx]
+
+    def __getnewcontent__(self) -> List:
+        self.re_dimension(2);
+        return [self.names, self.num_new]
+
+    def re_dimension(self, n: int) -> List:
+        x = [self.num[i][0] for i in range(len(self.num))]
+        y = [self.num[i][1] for i in range(len(self.num))]
+        pca = PCA(n_components=n)
+        pca.fit(x)
+        x_new = pca.transform(x)
+        self.num_new = [list(t) for t in zip(x_new, y)]
+        return self.num_new
 
 class BostonDataset(DataSet):
     def __init__(self, name:str) -> None:
@@ -82,7 +95,20 @@ class BostonDataset(DataSet):
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
-        return self.num[idx]  
+        return self.num[idx]
+
+    def __getnewcontent__(self) -> List:
+        self.re_dimension(2);
+        return [self.names, self.num_new]
+
+    def re_dimension(self, n: int) -> List:
+        x = [self.num[i][0] for i in range(len(self.num))]
+        y = [self.num[i][1] for i in range(len(self.num))]
+        pca = PCA(n_components=n)
+        pca.fit(x)
+        x_new = pca.transform(x)
+        self.num_new = [list(t) for t in zip(x_new, y)]
+        return self.num_new
     def support(self)-> List[str]:
         return []
 
@@ -98,7 +124,20 @@ class BreastCancerDataset(DataSet):
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
-        return self.num[idx]  
+        return self.num[idx]
+
+    def __getnewcontent__(self) -> List:
+        self.re_dimension(2);
+        return [self.names, self.num_new]
+
+    def re_dimension(self, n: int) -> List:
+        x = [self.num[i][0] for i in range(len(self.num))]
+        y = [self.num[i][1] for i in range(len(self.num))]
+        pca = PCA(n_components=n)
+        pca.fit(x)
+        x_new = pca.transform(x)
+        self.num_new = [list(t) for t in zip(x_new, y)]
+        return self.num_new
     def support(self) -> List[str]:
         return []
 
@@ -111,10 +150,21 @@ class WineDataset(DataSet):
         self.name = name
     def __getcontent__(self) -> List:
         return [self.names, self.num]
+    def __getnewcontent__(self)->List:
+        self.re_dimension(2);
+        return [self.names, self.num_new]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
+    def re_dimension(self,n:int)->List:
+        x=[self.num[i][0] for i in range(len(self.num))]
+        y = [self.num[i][1] for i in range(len(self.num))]
+        pca = PCA(n_components=n)
+        pca.fit(x)
+        x_new = pca.transform(x)
+        self.num_new=[list(t) for t in zip(x_new,y)]
+        return self.num_new
     def support(self) -> List[str]:
         return []
 
@@ -131,6 +181,17 @@ class DiabetesDataset(DataSet):
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
+    def __getnewcontent__(self)->List:
+        self.re_dimension(2);
+        return [self.names,self.num_new]
+    def re_dimension(self,n:int)->List:
+        x=[self.num[i][0] for i in range(len(self.num))]
+        y = [self.num[i][1] for i in range(len(self.num))]
+        pca = PCA(n_components=n)
+        pca.fit(x)
+        x_new = pca.transform(x)
+        self.num_new=[list(t) for t in zip(x_new,y)]
+        return self.num_new
     def support(self) -> List[str]:
         return []
 

@@ -64,7 +64,17 @@ class SendSocket:
 
     def send(self, content: str):
         self.sendBuffer.put(content)
-
+import numpy as np
+class MyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return super(MyEncoder, self).default(obj)
 class WebManager(Manager):
     def __init__(self) -> None:
         super().__init__()
@@ -96,14 +106,13 @@ class WebManager(Manager):
                             'type': 'overview', 
                             'data': {
                                 'datasets': list(self.datasets.keys()), 
-                                'details':{name: content.__getcontent__() for name, content in self.datasets.items()},
+                                'details':{name: content.__getnewcontent__() for name, content in self.datasets.items()},
                                 'splitters': list(self.splitters.keys()), 
                                 'models': list(self.models.keys()), 
                                 'params':{name: content.__getparams__() for name, content in self.models.items()},
                                 'judgers': list(self.judgers.keys())
                             }
-
-                        })
+                        },cls=MyEncoder)
                     
                         await socket.send(response)
 
