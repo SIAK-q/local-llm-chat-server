@@ -14,7 +14,7 @@ class ManagerConfig:
     dataset: str
     splitter: str
     ratio: Any
-    model: Dict[str, str]
+    model: Dict
     judger: str
 
     dataset_params: Dict[str, str]
@@ -22,7 +22,7 @@ class ManagerConfig:
     model_params: Dict[str, str]
     judger_params: Dict[str, str]
 
-    def __init__(self, dataset, splitter, ratio,model, judger, dataset_params=None, splitter_params=None, model_params=None, judger_params=None) -> None:
+    def __init__(self, dataset, splitter, ratio, model, judger, dataset_params=None, splitter_params=None, model_params=None, judger_params=None) -> None:
         self.dataset = dataset
         self.ratio = ratio
         self.splitter = splitter
@@ -63,7 +63,7 @@ class Manager:
 
     def register_model(self, model: Model, name: str=None) -> Manager:
         if name is None:
-            name = model.__class__.__name__
+            name = model
         assert name not in self.models.keys(), 'name already exists'
         self.models.setdefault(name, model)
         return self
@@ -113,8 +113,8 @@ class Manager:
         for key, value in conf.splitter_params.items():
             setattr(splitter, key, value)
 
-        assert conf.model.get('name') in self.models.keys(), 'unknown model class name'
-        model = self.models[conf.model.get('name')]
+        assert conf.model[0] in self.models.keys(), 'unknown model class name'
+        model = self.models[conf.model[0]]
 
         for key, value in conf.model_params.items():
             setattr(model, key, value)
@@ -125,8 +125,8 @@ class Manager:
             setattr(judger, key, value)
 
         train_data, test_data = splitter.split(dataset, self.ratio)
-        model.train(train_data, conf.model)
-        y_hat = model.test(test_data, conf.model)
+        model.train(train_data, conf.model[1])
+        y_hat = model.test(test_data, conf.model[1])
         judger.judge(y_hat, test_data)
 
 class CmdManager(Manager):

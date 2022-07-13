@@ -29,10 +29,6 @@ class WebLogger(Logger):
         
         with open(image,'rb') as f:
             base64code = base64.b64encode(f.read())
-
-        # print("*********")
-        # print(base64code) 
-        # print("***************")
         self.socket.send(json.dumps({
             'status': 200, 
             'type': 'image', 
@@ -41,6 +37,16 @@ class WebLogger(Logger):
             }
         }))
         return super().image(image)
+    
+    def plot(self, plot) -> Logger:
+        self.socket.send(json.dumps({
+            'status': 200, 
+            'type': 'plot', 
+            'data': {
+                'content': '[{}]: '.format(plot)
+            }
+        }))
+        return super().plot(plot)
 
     def progess(self, percentage: float) -> Logger:
         return super().progess(percentage)
@@ -122,13 +128,13 @@ class WebManager(Manager):
                             params['datasetName'], 
                             params['splitterName'], 
                             params['ratio'],
-                            params['modelName'], 
+                            params['model'], 
                             params['judgerName'],
                             
 
                             dataset_params={'logger': WebLogger(sendSocket, params['datasetName'])}, 
                             splitter_params={'logger': WebLogger(sendSocket, params['splitterName'])}, 
-                            model_params={'logger': WebLogger(sendSocket, params['modelName'])}, 
+                            model_params={'logger': WebLogger(sendSocket, params['model'][0])}, 
                             judger_params={'logger': WebLogger(sendSocket, params['judgerName'])}, 
                         )
 

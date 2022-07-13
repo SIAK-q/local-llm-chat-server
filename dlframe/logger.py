@@ -13,6 +13,11 @@ class Logger:
     def image(self, image) -> Logger:
         return self
 
+    def plot(self, plot) -> Logger:
+        return self
+
+    
+
 
 class CmdLogger(Logger):
     def __init__(self, name=None) -> None:
