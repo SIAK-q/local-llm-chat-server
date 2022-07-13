@@ -98,7 +98,7 @@ class BostonDataset(DataSet):
         return self.num[idx]
 
     def __getnewcontent__(self) -> List:
-        self.re_dimension(2);
+        self.re_dimension(1);
         return [self.names, self.num_new]
 
     def re_dimension(self, n: int) -> List:
@@ -182,7 +182,7 @@ class DiabetesDataset(DataSet):
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
     def __getnewcontent__(self)->List:
-        self.re_dimension(2);
+        self.re_dimension(1);
         return [self.names,self.num_new]
     def re_dimension(self,n:int)->List:
         x=[self.num[i][0] for i in range(len(self.num))]
