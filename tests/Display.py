@@ -42,7 +42,7 @@ params = {
 class TestDataset(ListDataSet):
     def __init__(self, num,name:str) -> None:
         super().__init__(num)
-        self.name=name
+        self.name = name
         self.num = num
 
     def __len__(self) -> int:
@@ -60,17 +60,18 @@ class IrisDataset(DataSet):
         Iris = load_iris()
         self.num = [list(t) for t in zip(Iris.data.tolist(),Iris.target.tolist())]
         self.names = list(Iris.feature_names)
+        self.labels = list(Iris.target_names)
         self.name = name
     
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+        return [self.names, self.labels, self.num]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
 
     def __getnewcontent__(self) -> List:
-        self.re_dimension(2);
+        self.re_dimension(2)
         return [self.names, self.num_new]
 
     def re_dimension(self, n: int) -> List:
@@ -118,9 +119,10 @@ class BreastCancerDataset(DataSet):
         breastCancer = load_breast_cancer()
         self.num = [list(t) for t in zip(breastCancer.data.tolist(),breastCancer.target.tolist())]
         self.names = list(breastCancer.feature_names)
+        self.labels = list(breastCancer.target_names)
         self.name = name
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+        return [self.names, self.labels, self.num]
     def __len__(self) -> int:
         return len(self.num)
     def __getitem__(self, idx: int) -> Any:
@@ -147,11 +149,12 @@ class WineDataset(DataSet):
         wine = load_wine()
         self.num = [list(t) for t in zip(wine.data.tolist(),wine.target.tolist())]
         self.names = list(wine.feature_names)
+        self.labels = list(wine.target_names)
         self.name = name
     def __getcontent__(self) -> List:
-        return [self.names, self.num]
+        return [self.names, self.labels, self.num]
     def __getnewcontent__(self)->List:
-        self.re_dimension(2);
+        self.re_dimension(2)
         return [self.names, self.num_new]
     def __len__(self) -> int:
         return len(self.num)
@@ -182,7 +185,7 @@ class DiabetesDataset(DataSet):
     def __getitem__(self, idx: int) -> Any:
         return self.num[idx]
     def __getnewcontent__(self)->List:
-        self.re_dimension(1);
+        self.re_dimension(1)
         return [self.names,self.num_new]
     def re_dimension(self,n:int)->List:
         x=[self.num[i][0] for i in range(len(self.num))]
@@ -295,14 +298,14 @@ class DecisionTreeModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet, param: Dict) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.jueceshuModel = DecisionTreeClassifier(criterion=params.get('criterion'), splitter=params.get('splitter'), max_depth=params.get('max_depth'), min_samples_split=params.get('min_samples_split'), min_samples_leaf=params.get('min_samples_leaf'), max_features=params.get('max_features'))
         self.jueceshuModel.fit(train_X,train_Y)
         self.logger.print("执行决策树算法")
-        return super().train(trainDataset, param)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, param: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.jueceshuModel.predict(test_X)
@@ -313,7 +316,7 @@ class DecisionTreeModel(Model):
         params = {}
         params['criterion']='gini'
         params['splitter']="best"
-        params['max_depth'] = "None"
+        params['max_depth'] = None
         params['min_samples_split'] = 2
         params['min_samples_leaf'] = 1
         params['max_features'] = "sqrt"
@@ -324,15 +327,15 @@ class BayesModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.beyesiModel=GaussianNB(priors=params.get('priors'),var_smoothing=params.get('var_smoothing'))
         self.beyesiModel.fit(train_X, train_Y)
         self.logger.print("执行贝叶斯分类器算法")
-        return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+        return super().train(trainDataset, params)
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.beyesiModel.predict(test_X)
         self.logger.print("testing")
@@ -340,7 +343,7 @@ class BayesModel(Model):
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
-        params['priors']='None'
+        params['priors']=None
         params['var_smoothing']=1e-09
         return params
 
@@ -349,15 +352,15 @@ class GradientBoostingModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.tiduzengqiangModel=GradientBoostingClassifier(loss=params.get('loss'),learning_rate=params.get('learning_rate'),n_estimators=params.get('n_estimators'),subsample=params.get('subsample'),criterion=params.get('criterion'),min_samples_leaf=params.get('min_samples_leaf'),min_weight_fraction_leaf=params.get('min_weight_fraction_leaf'))
         self.tiduzengqiangModel.fit(train_X,train_Y)
         self.logger.print("执行梯度增强算法")
-        return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+        return super().train(trainDataset, params)
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.tiduzengqiangModel.predict(test_X)
         self.logger.print("testing")
@@ -386,8 +389,8 @@ class LinearRegressionModel(Model):
         self.LrModel=LinearRegression(fit_intercept=params.get('fit_intercept'), normalize=params.get('normalize'), copy_X=params.get('copy_X'), positive=params.get('positive'))
         self.LrModel.fit(train_X,train_Y)
         self.logger.print("执行线性回归算法")
-        return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+        return super().train(trainDataset, params)
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.LrModel.predict(test_X)
         self.logger.print("testing")
@@ -406,15 +409,15 @@ class KNeighborsModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.knn = KNeighborsClassifier(n_neighbors=params.get('n_neighbors'),weights=params.get('weights'),algorithm=params.get('algorithm'),leaf_size=params.get('leaf_size'),p=params.get('p'))
         self.knn.fit(train_X,train_Y) 
         self.logger.print("执行k-近邻算法")
-        return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+        return super().train(trainDataset, params)
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.knn.predict(test_X)
         self.logger.print("testing")
@@ -441,7 +444,7 @@ class XGBRModel(Model):
         self.reg = XGBR(n_estimators=params.get('n_estimators'),learning_rate=params.get('learning_rate'))
         self.reg.fit(train_X,train_Y,early_stopping_rounds=params.get['early_stopping_rounds'])
         self.logger.print("执行XGboost算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.reg.predict(test_X)
@@ -460,15 +463,15 @@ class SVMModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.classifier = svm.SVC(C=params.get('C'),kernel=params.get('kernel'),degree=params.get('degree'),gamma=params.get('gamma'),coef0=params.get('coef0'),shrinking=params.get('shrinking'))
         self.classifier.fit(train_X,train_Y) 
         self.logger.print("执行SVM算法")
-        return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+        return super().train(trainDataset, params)
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.classifier.predict(test_X)
         self.logger.print("testing")
@@ -497,7 +500,7 @@ class RandomForestModel(Model):
         self.suijisenlinModel=RandomForestClassifier(n_estimators=param.get('n_estimators'), criterion=param.get('criterion'), max_depth=param.get('max_depth'), min_samples_split=param.get('min_samples_split'), min_samples_leaf=param.get('min_samples_leaf'),  max_features=param.get('max_features'))
         self.suijisenlinModel.fit(train_X,train_Y)
         self.logger.print("执行随机森林算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, param: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.suijisenlinModel.predict(test_X)
@@ -508,7 +511,7 @@ class RandomForestModel(Model):
         params = {}
         params['n_estimators']=100
         params['criterion']="gini"
-        params['max_depth']="None"
+        params['max_depth']=None
         params['min_samples_split']=2
         params['min_samples_leaf']=1
         params['max_features']="sqrt"
@@ -526,7 +529,7 @@ class LogisticRegressionModel(Model):
         self.luojihuiguiModel=LogisticRegression(penalty=params.get('penalty'),  tol=params.get('tol'), C=params.get('C'), fit_intercept=params.get('fit_intercept'), solver=params.get('solver'), max_iter=params.get('max_iter'))
         self.luojihuiguiModel.fit(train_X,train_Y)
         self.logger.print("执行逻辑回归算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.luojihuiguiModel.predict(test_X)
@@ -555,7 +558,7 @@ class KmeansModel(Model):
         self.kmeansModel=KMeans(n_clusters=params['n_clusters'],init=params['init'], n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'], algorithm=params['algorithm'])
         self.kmeansModel.fit(train_X,train_Y)
         self.logger.print("执行K-means聚类算法")
-        return super().train(trainDataset)
+        return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.kmeansModel.predict(test_X)

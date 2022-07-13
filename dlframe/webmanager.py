@@ -112,7 +112,8 @@ class WebManager(Manager):
                             'type': 'overview', 
                             'data': {
                                 'datasets': list(self.datasets.keys()), 
-                                'details':{name: content.__getnewcontent__() for name, content in self.datasets.items()},
+                                'details':{name: content.__getcontent__() for name, content in self.datasets.items()},
+                                'details_2':{name: content.__getnewcontent__() for name, content in self.datasets.items()},
                                 'splitters': list(self.splitters.keys()), 
                                 'models': list(self.models.keys()), 
                                 'params':{name: content.__getparams__() for name, content in self.models.items()},
