@@ -24,12 +24,6 @@ from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
 from sklearn import datasets, svm
 import numpy as np
 
-from algorithm import 决策树,梯度增强,概率图,贝叶斯分类器
-from algorithm.贝叶斯分类器 import NaiveBayes
-from algorithm.决策树 import DecisionTree
-from algorithm.梯度增强 import GradientBoostingRegressor
-from algorithm import XGboost
-
 params = {
     'eta': 0.02,  #lr
     'num_class':3,
@@ -244,7 +238,7 @@ class DecisionTreeModel(Model):
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.jueceshuModel = DecisionTreeClassifier()
+        self.jueceshuModel = DecisionTreeClassifier(criterion=params.get('criterion'), splitter=params.get('splitter'), max_depth=params.get('max_depth'), min_samples_split=params.get('min_samples_split'), min_samples_leaf=params.get('min_samples_leaf'), max_features=params.get('max_features'))
         self.jueceshuModel.fit(train_X,train_Y)
         self.logger.print("执行决策树算法")
         return super().train(trainDataset, param)
@@ -254,6 +248,15 @@ class DecisionTreeModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['criterion']='gini'
+        params['splitter']="best"
+        params['max_depth'] = "None"
+        params['min_samples_split'] = 2
+        params['min_samples_leaf'] = 1
+        params['max_features'] = "sqrt"
+        return params
 
 class BayesModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -264,7 +267,7 @@ class BayesModel(Model):
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.beyesiModel=GaussianNB()
+        self.beyesiModel=GaussianNB(priors=params.get('priors'),var_smoothing=params.get('var_smoothing'))
         self.beyesiModel.fit(train_X, train_Y)
         self.logger.print("执行贝叶斯分类器算法")
         return super().train(trainDataset)
@@ -274,6 +277,11 @@ class BayesModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['priors']='None'
+        params['var_smoothing']=1e-09
+        return params
 
 class GradientBoostingModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -284,7 +292,7 @@ class GradientBoostingModel(Model):
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.tiduzengqiangModel=GradientBoostingClassifier()
+        self.tiduzengqiangModel=GradientBoostingClassifier(loss=params.get('loss'),learning_rate=params.get('learning_rate'),n_estimators=params.get('n_estimators'),subsample=params.get('subsample'),criterion=params.get('criterion'),min_samples_leaf=params.get('min_samples_leaf'),min_weight_fraction_leaf=params.get('min_weight_fraction_leaf'))
         self.tiduzengqiangModel.fit(train_X,train_Y)
         self.logger.print("执行梯度增强算法")
         return super().train(trainDataset)
@@ -294,6 +302,16 @@ class GradientBoostingModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['loss']='deviance'
+        params['learning_rate']=0.1
+        params['n_estimators']=100
+        params['subsample']=1.0
+        params['criterion']='friedman_mse'
+        params['min_samples_leaf']=1
+        params['min_weight_fraction_leaf']=0.0
+        return params
 
 class LinearRegressionModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -331,7 +349,7 @@ class KNeighborsModel(Model):
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.knn = KNeighborsClassifier() 
+        self.knn = KNeighborsClassifier(n_neighbors=params.get('n_neighbors'),weights=params.get('weights'),algorithm=params.get('algorithm'),leaf_size=params.get('leaf_size'),p=params.get('p'))
         self.knn.fit(train_X,train_Y) 
         self.logger.print("执行k-近邻算法")
         return super().train(trainDataset)
@@ -341,6 +359,14 @@ class KNeighborsModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['n_neighbors']=5
+        params['weights']='uniform'
+        params['algorithm']='auto'
+        params['leaf_size']=30
+        params['p']=2
+        return params
 
 class XGBRModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -377,7 +403,7 @@ class SVMModel(Model):
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.classifier = svm.SVC(C=2, kernel='rbf', gamma=10, decision_function_shape='ovo') 
+        self.classifier = svm.SVC(C=params.get('C'),kernel=params.get('kernel'),degree=params.get('degree'),gamma=params.get('gamma'),coef0=params.get('coef0'),shrinking=params.get('shrinking'))
         self.classifier.fit(train_X,train_Y) 
         self.logger.print("执行SVM算法")
         return super().train(trainDataset)
@@ -387,6 +413,15 @@ class SVMModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['C']=1.0
+        params['kernel']='rbf'
+        params['degree']=3
+        params['gamma']='auto'
+        params['coef0']=0.0
+        params['shrinking']=True
+        return params
 
 class RandomForestModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
