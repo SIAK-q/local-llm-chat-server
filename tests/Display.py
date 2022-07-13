@@ -300,11 +300,11 @@ class LinearRegressionModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
-        self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.LrModel=LinearRegression()
+        # self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.LrModel=LinearRegression(fit_intercept=params.get('fit_intercept'), normalize=params.get('normalize'), copy_X=params.get('copy_X'), positive=params.get('positive'))
         self.LrModel.fit(train_X,train_Y)
         self.logger.print("执行线性回归算法")
         return super().train(trainDataset)
@@ -314,6 +314,13 @@ class LinearRegressionModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['fit_intercept']=True
+        params['normalize']="deprecated"
+        params['copy_X']=True
+        params['positive']=False
+        return params
 
 class KNeighborsModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -340,20 +347,26 @@ class XGBRModel(Model):
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
-        self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.reg = XGBR(n_estimators=100)
-        self.reg.fit(train_X,train_Y)
+        #self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.reg = XGBR(n_estimators=params.get('n_estimators'),learning_rate=params.get('learning_rate'))
+        self.reg.fit(train_X,train_Y,early_stopping_rounds=params.get['early_stopping_rounds'])
         self.logger.print("执行XGboost算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.reg.predict(test_X)
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['n_estimators']=100
+        params['learning_rate']=0.05
+        params['early_stopping_rounds']=5
+        return params
 
 class SVMModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
@@ -384,7 +397,8 @@ class RandomForestModel(Model):
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.suijisenlinModel=RandomForestClassifier()
+
+        self.suijisenlinModel=RandomForestClassifier(n_estimators=param.get('n_estimators'), criterion=param.get('criterion'), max_depth=param.get('max_depth'), min_samples_split=param.get('min_samples_split'), min_samples_leaf=param.get('min_samples_leaf'),  max_features=param.get('max_features'))
         self.suijisenlinModel.fit(train_X,train_Y)
         self.logger.print("执行随机森林算法")
         return super().train(trainDataset)
@@ -394,46 +408,73 @@ class RandomForestModel(Model):
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['n_estimators']=100
+        params['criterion']="gini"
+        params['max_depth']="None"
+        params['min_samples_split']=2
+        params['min_samples_leaf']=1
+        params['max_features']="sqrt"
+        return params
 
 class LogisticRegressionModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.luojihuiguiModel=LogisticRegression()
+        self.luojihuiguiModel=LogisticRegression(penalty=params.get('penalty'),  tol=params.get('tol'), C=params.get('C'), fit_intercept=params.get('fit_intercept'), solver=params.get('solver'), max_iter=params.get('max_iter'))
         self.luojihuiguiModel.fit(train_X,train_Y)
         self.logger.print("执行逻辑回归算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.luojihuiguiModel.predict(test_X)
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['penalty'] = "l2"
+        params['tol'] = 0.0001
+        params['C'] = 1
+        params['fit_intercept'] = True
+        params['solver'] = "lbfgs"
+        params['max_iter'] = 100
+        return params
 
 class KmeansModel(Model):
     def __init__(self, learning_rate,name:str) -> None:
         super().__init__()
         self.learning_rate = learning_rate
         self.name=name
-    def train(self, trainDataset: DataSet) -> None:
+    def train(self, trainDataset: DataSet, params: Dict) -> None:
         train_X = [trainDataset[i][0] for i in range(len(trainDataset))]
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
-        self.logger.print("trainging, lr = {}".format(self.learning_rate))
-        self.kmeansModel=KMeans()
+        # self.logger.print("trainging, lr = {}".format(self.learning_rate))
+        self.kmeansModel=KMeans(n_clusters=params['n_clusters'],init=params['init'], n_init=params['n_init'], max_iter=params['max_iter'], tol=params['tol'], algorithm=params['algorithm'])
         self.kmeansModel.fit(train_X,train_Y)
         self.logger.print("执行K-means聚类算法")
         return super().train(trainDataset)
-    def test(self, testDataset: DataSet) -> Any:
+    def test(self, testDataset: DataSet, params: Dict) -> Any:
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.kmeansModel.predict(test_X)
         self.logger.print("testing")
         self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
+    def __getparams__(self) -> Dict:
+        params = {}
+        params['n_clusters']=8
+        params['init']="k-means++"
+        params['n_init']=10
+        params['max_iter']=300
+        params['tol']=0.0001
+        params['algorithm']="lloyd"
+        return params
 
 class TestJudger(Judger):
     def __init__(self,name:str) -> None:
