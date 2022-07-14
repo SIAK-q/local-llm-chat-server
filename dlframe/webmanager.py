@@ -1,3 +1,4 @@
+import re
 from dlframe.logger import Logger
 from dlframe.manager import Manager, ManagerConfig
 
@@ -29,7 +30,9 @@ class WebLogger(Logger):
         
         with open(image,'rb') as f:
             base64code = base64.b64encode(f.read())
-        
+              
+        base64code=base64code.decode("utf-8")
+
         print("**********")
         print(base64code)
         print("**********")
@@ -37,7 +40,7 @@ class WebLogger(Logger):
             'status': 200, 
             'type': 'image', 
             'data': {
-                'content': '[{}]: '.format(base64code)
+                'content': '{}'.format(base64code)
             }
         }))
         return super().image(image)
