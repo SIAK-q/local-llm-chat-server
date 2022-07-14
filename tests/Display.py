@@ -1,6 +1,7 @@
 from ast import Dict
 import os
 import sys
+from matplotlib import pyplot as plt
 
 import numpy
 from sklearn import metrics
@@ -625,7 +626,8 @@ class ClassifyJudger(Judger):
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
         self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
-        test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
+        test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]
+        test_X = [test_dataset[i][0] for i in range(len(test_dataset))]      
         self.logger.print("执行分类判别")
         self.accuancy_score=accuracy_score(test_Y,y_hat)
         self.logger.print('准确率为：%f%%' % ((self.accuancy_score)*100))
@@ -635,6 +637,26 @@ class ClassifyJudger(Judger):
         self.logger.print('hamming距离值为：%f' % (self.ham_distance))
         #self.logger.image('D:/DevC++/interesting/test.png')
 
+        pca=PCA(n_components=2)  #设置降维后的主成分数目为2。
+        reduced_x=pca.fit_transform(test_X)
+        red_x,red_y=[],[]
+        blue_x,blue_y=[],[]
+        green_x,green_y=[],[]
+        for i in range(len(reduced_x)):
+            if y_hat[i] ==0:
+                red_x.append(reduced_x[i][0])
+                red_y.append(reduced_x[i][1])
+            elif y_hat[i]==1:
+                blue_x.append(reduced_x[i][0])
+                blue_y.append(reduced_x[i][1])
+            else:
+                green_x.append(reduced_x[i][0])
+                green_y.append(reduced_x[i][1])
+        plt.scatter(red_x,red_y,c='r',marker='x')
+        plt.scatter(blue_x,blue_y,c='b',marker='D')
+        plt.scatter(green_x,green_y,c='g',marker='.')
+        plt.savefig("D:/分类1.png")
+        self.logger.image("D:/分类1.png")
         return super().judge(y_hat, test_dataset)
 
 class ClusterJudger(Judger):

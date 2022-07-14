@@ -29,6 +29,10 @@ class WebLogger(Logger):
         
         with open(image,'rb') as f:
             base64code = base64.b64encode(f.read())
+        
+        print("**********")
+        print(base64code)
+        print("**********")
         self.socket.send(json.dumps({
             'status': 200, 
             'type': 'image', 
