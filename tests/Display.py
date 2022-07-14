@@ -312,7 +312,7 @@ class DecisionTreeModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.jueceshuModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -341,7 +341,7 @@ class BayesModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.beyesiModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -366,7 +366,7 @@ class GradientBoostingModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.tiduzengqiangModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -396,7 +396,7 @@ class LinearRegressionModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.LrModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -423,7 +423,7 @@ class KNeighborsModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.knn.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -451,7 +451,7 @@ class XGBRModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.reg.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -477,7 +477,7 @@ class SVMModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y = self.classifier.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -507,7 +507,7 @@ class RandomForestModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.suijisenlinModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -536,7 +536,7 @@ class LogisticRegressionModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.luojihuiguiModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -565,7 +565,7 @@ class KmeansModel(Model):
         test_X = [testDataset[i][0] for i in range(len(testDataset))]
         test_Y=self.kmeansModel.predict(test_X)
         self.logger.print("testing")
-        self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
+        # self.logger.print("test_Y={}".format([test_Y[i] for i in range(len(test_Y))]))
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
@@ -626,7 +626,7 @@ class ClassifyJudger(Judger):
         self.name=name
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
-        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        # self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
         test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]
         test_X = [test_dataset[i][0] for i in range(len(test_dataset))]      
         self.logger.print("执行分类判别")
@@ -666,7 +666,7 @@ class ClusterJudger(Judger):
         self.name=name
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
-        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        # self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
         test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
         test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
         self.logger.print("执行聚类判别")
@@ -704,7 +704,7 @@ class RegressionJudger(Judger):
         self.name=name
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
-        self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        # self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
         test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
         test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
         self.logger.print("执行回归判别")
