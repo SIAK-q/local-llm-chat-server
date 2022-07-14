@@ -33,9 +33,13 @@ class WebLogger(Logger):
               
         base64code=base64code.decode("utf-8")
 
-        print("**********")
-        print(base64code)
-        print("**********")
+
+        imgdata=base64.b64decode(base64code)
+        # print(imgdata)
+        # print("****************")
+        # file=open('D:/tui.jpg','wb') #新建一个jpg文件，把信息写入该文件，第一个参数是文件路径
+        # file.write(imgdata)
+        # file.close()
         self.socket.send(json.dumps({
             'status': 200, 
             'type': 'image', 

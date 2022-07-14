@@ -24,6 +24,7 @@ import math
 from dlframe import DataSet,ListDataSet, Splitter, Model, Judger, WebManager
 from sklearn import datasets, svm
 import numpy as np
+import pylab
 
 params = {
     'eta': 0.02,  #lr
@@ -100,7 +101,7 @@ class BostonDataset(DataSet):
         return self.num[idx]
 
     def __getnewcontent__(self) -> List:
-        self.re_dimension(1);
+        self.re_dimension(1)
         return [self.names, self.num_new]
 
     def re_dimension(self, n: int) -> List:
@@ -443,7 +444,7 @@ class XGBRModel(Model):
         train_Y = [trainDataset[i][1] for i in range(len(trainDataset))]
         #self.logger.print("trainging, lr = {}".format(self.learning_rate))
         self.reg = XGBR(n_estimators=params.get('n_estimators'),learning_rate=params.get('learning_rate'))
-        self.reg.fit(train_X,train_Y,early_stopping_rounds=params.get['early_stopping_rounds'])
+        self.reg.fit(train_X,train_Y)
         self.logger.print("执行XGboost算法")
         return super().train(trainDataset, params)
     def test(self, testDataset: DataSet, params: Dict) -> Any:
@@ -456,7 +457,7 @@ class XGBRModel(Model):
         params = {}
         params['n_estimators']=100
         params['learning_rate']=0.05
-        params['early_stopping_rounds']=5
+        #params['early_stopping_rounds']=5
         return params
 
 class SVMModel(Model):
@@ -568,7 +569,7 @@ class KmeansModel(Model):
         return test_Y
     def __getparams__(self) -> Dict:
         params = {}
-        params['n_clusters']=8
+        params['n_clusters']=3
         params['init']="k-means++"
         params['n_init']=10
         params['max_iter']=300
@@ -655,8 +656,8 @@ class ClassifyJudger(Judger):
         plt.scatter(red_x,red_y,c='r',marker='x')
         plt.scatter(blue_x,blue_y,c='b',marker='D')
         plt.scatter(green_x,green_y,c='g',marker='.')
-        plt.savefig("D:/分类1.png")
-        self.logger.image("D:/分类1.png")
+        plt.savefig("D:/分类1.jpeg")
+        self.logger.image("D:/分类1.jpeg")
         return super().judge(y_hat, test_dataset)
 
 class ClusterJudger(Judger):
@@ -674,6 +675,26 @@ class ClusterJudger(Judger):
         self.ch_score = calinski_harabasz_score(test_X,y_hat)
         self.logger.print('聚类calinski_harabaz指数为：%f'%(self.ch_score))
 
+        pca=PCA(n_components=2)  #设置降维后的主成分数目为2。
+        reduced_x=pca.fit_transform(test_X)
+        red_x,red_y=[],[]
+        blue_x,blue_y=[],[]
+        green_x,green_y=[],[]
+        for i in range(len(reduced_x)):
+            if y_hat[i] ==0:
+                red_x.append(reduced_x[i][0])
+                red_y.append(reduced_x[i][1])
+            elif y_hat[i]==1:
+                blue_x.append(reduced_x[i][0])
+                blue_y.append(reduced_x[i][1])
+            elif y_hat[i]==2:
+                green_x.append(reduced_x[i][0])
+                green_y.append(reduced_x[i][1])
+        plt.scatter(red_x,red_y,c='r',marker='x')
+        plt.scatter(blue_x,blue_y,c='b',marker='D')
+        plt.scatter(green_x,green_y,c='g',marker='.')
+        plt.savefig("D:/聚类1.jpeg")
+        self.logger.image("D:/聚类1.jpeg")
 
         return super().judge(y_hat, test_dataset)
 
@@ -684,6 +705,7 @@ class RegressionJudger(Judger):
 
     def judge(self, y_hat, test_dataset: DataSet) -> None:
         self.logger.print("gt = {}".format([test_dataset[i][1] for i in range(len(test_dataset))]))
+        test_X = [test_dataset[i][0] for i in range(len(test_dataset))]
         test_Y = [test_dataset[i][1] for i in range(len(test_dataset))]      
         self.logger.print("执行回归判别")
         self.mse=mean_squared_error(test_Y,y_hat)
@@ -697,6 +719,25 @@ class RegressionJudger(Judger):
         self.logger.print("平均绝对百分比误差={}".format(self.mape,1))
         # mape 输出不是 [0, 100] 范围内的百分比，值 100 并不意味着 100%，而是 1e2。此外，当y_true 很小(特定于指标)或当abs(y_true - y_pred) 很大(这对于大多数回归指标很常见)时，输出可以任意高。
         self.logger.print("决定系数={}".format(self.r2,1))
+
+        pca=PCA(n_components=1)  #设置降维后的主成分数目为1。
+        reduced_x=pca.fit_transform(test_X)
+        x = [reduced_x[i][0] for i in range(len(reduced_x))]
+        z = np.polyfit(x, test_Y,1)
+        p = np.poly1d(z)
+        y_pred = p(x)
+
+        z1 = np.polyfit(x, y_hat,1)
+        p1 = np.poly1d(z1) 
+        y1_pred = p1(x)   
+
+        plot1 = pylab.plot(x, test_Y, 'r*', label='original values')
+        plot2 = pylab.plot(x, y_pred, 'r')
+        plot3 = pylab.plot(x, y_hat, 'b*', label='test values')
+        plot4 = pylab.plot(x, y1_pred, 'b')
+        pylab.legend(loc=3, borderaxespad=0., bbox_to_anchor=(0, 0))
+        pylab.savefig('D:/回归.jpeg')
+        self.logger.image("D:/回归.jpeg")
 
         return super().judge(y_hat, test_dataset)
 
