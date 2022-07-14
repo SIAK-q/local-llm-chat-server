@@ -658,6 +658,8 @@ class ClassifyJudger(Judger):
         plt.scatter(green_x,green_y,c='g',marker='.')
         plt.savefig("D:/分类1.jpeg")
         self.logger.image("D:/分类1.jpeg")
+        plt.clf()
+        plt.close()
         return super().judge(y_hat, test_dataset)
 
 class ClusterJudger(Judger):
@@ -695,6 +697,8 @@ class ClusterJudger(Judger):
         plt.scatter(green_x,green_y,c='g',marker='.')
         plt.savefig("D:/聚类1.jpeg")
         self.logger.image("D:/聚类1.jpeg")
+        plt.clf()
+        plt.close()
 
         return super().judge(y_hat, test_dataset)
 
@@ -738,6 +742,8 @@ class RegressionJudger(Judger):
         pylab.legend(loc=3, borderaxespad=0., bbox_to_anchor=(0, 0))
         pylab.savefig('D:/回归.jpeg')
         self.logger.image("D:/回归.jpeg")
+        plt.clf()
+        plt.close()
 
         return super().judge(y_hat, test_dataset)
 
