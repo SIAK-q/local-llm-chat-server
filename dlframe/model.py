@@ -7,10 +7,10 @@ class Model(WebItem):
     def __init__(self) -> None:
         super().__init__()
 
-    def train(self, trainDataset: DataSet, param: Dict) -> None:
+    def train(self, trainDataset: DataSet, param: Dict=None) -> None:
         pass
 
-    def test(self, testDataset: DataSet, param: Dict) -> Any:
+    def test(self, testDataset: DataSet, param: Dict=None) -> Any:
         pass
 
     def __getparams__(self)-> Dict:

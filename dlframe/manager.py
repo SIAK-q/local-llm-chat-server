@@ -1,5 +1,5 @@
 from __future__ import annotations
-from email.policy import default
+import inspect
 
 from typing import Any, Dict, List, Tuple
 
@@ -14,7 +14,7 @@ class ManagerConfig:
     dataset: str
     splitter: str
     ratio: Any
-    model: Dict
+    model: Any
     judger: str
 
     dataset_params: Dict[str, str]
@@ -63,7 +63,7 @@ class Manager:
 
     def register_model(self, model: Model, name: str=None) -> Manager:
         if name is None:
-            name = model
+            name = model.__class__.__name__
         assert name not in self.models.keys(), 'name already exists'
         self.models.setdefault(name, model)
         return self
@@ -113,8 +113,21 @@ class Manager:
         for key, value in conf.splitter_params.items():
             setattr(splitter, key, value)
 
-        assert conf.model[0] in self.models.keys(), 'unknown model class name'
-        model = self.models[conf.model[0]]
+        model_name = None
+        model_extra = None
+        if isinstance(conf.model, (list, tuple)):
+            assert len(conf.model) >= 1, 'model config must include name'
+            model_name = conf.model[0]
+            if len(conf.model) >= 2:
+                model_extra = conf.model[1]
+        elif isinstance(conf.model, dict):
+            model_name = conf.model.get('name')
+            model_extra = conf.model.get('params')
+        else:
+            model_name = conf.model
+
+        assert model_name in self.models.keys(), 'unknown model class name'
+        model = self.models[model_name]
 
         for key, value in conf.model_params.items():
             setattr(model, key, value)
@@ -125,8 +138,36 @@ class Manager:
             setattr(judger, key, value)
 
         train_data, test_data = splitter.split(dataset, self.ratio)
-        model.train(train_data, conf.model[1])
-        y_hat = model.test(test_data, conf.model[1])
+
+        def accepts_extra_argument(method):
+            signature = inspect.signature(method)
+            params = list(signature.parameters.values())
+            if params and params[0].name == 'self' and params[0].kind in (
+                inspect.Parameter.POSITIONAL_ONLY,
+                inspect.Parameter.POSITIONAL_OR_KEYWORD
+            ):
+                params = params[1:]
+            if not params:
+                return False
+            remaining = params[1:]
+            for param in remaining:
+                if param.kind in (
+                    inspect.Parameter.POSITIONAL_ONLY,
+                    inspect.Parameter.POSITIONAL_OR_KEYWORD,
+                    inspect.Parameter.VAR_POSITIONAL
+                ):
+                    return True
+            return False
+
+        if accepts_extra_argument(model.train):
+            model.train(train_data, model_extra)
+        else:
+            model.train(train_data)
+
+        if accepts_extra_argument(model.test):
+            y_hat = model.test(test_data, model_extra)
+        else:
+            y_hat = model.test(test_data)
         judger.judge(y_hat, test_data)
 
 class CmdManager(Manager):
