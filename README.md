@@ -1,22 +1,42 @@
-# ML_VISUAL_BACK
+# Vue-Ollama-Chat Server (Backend)
 
-## What does the project do?
+This is the Python-based WebSocket server for the `Vue-Ollama-Chat` project. It serves as the bridge between the Vue frontend and a local Ollama instance.
 
-ML_VISUAL_BACK is a backend framework designed to support machine learning experiments and visualization. It provides a unified interface for handling datasets, splitting data, training and testing models, and evaluating results. The framework includes implementations of classical algorithms such as decision trees, linear regression, Naive Bayes, k-nearest neighbors, support vector machines, gradient boosting, and XGBoost. Evaluation modules are built in for classification, regression, and clustering tasks.  
+## Key Features
 
-In addition to command-line execution, ML_VISUAL_BACK offers a WebSocket-based manager, enabling real-time communication with a front-end client. Through this integration, results such as metrics, logs, and plots can be displayed interactively in a visualization interface.
+* **WebSocket Server**: Provides a real-time, bidirectional communication channel using the `websockets` library.
+* **Ollama Integration**: Interfaces with the Ollama API (`/api/chat`) using the `requests` library to fetch responses from local language models, supporting streaming output.
+* **Database Persistence**: Utilizes SQLite (`sqlite3`) to store conversation history (`conversations` and `messages` tables with a one-to-many relationship), enabling multi-turn dialogue context.
+* **Context Management**: Loads and sends the full message history of a conversation to the Ollama `/api/chat` endpoint to maintain conversational context.
+* **Client Communication**: Sends structured status updates, logs, and AI responses (streamed) back to the connected frontend client via WebSocket messages.
 
-## Why is the project useful?
+## Tech Stack
 
-Machine learning models are often difficult to interpret directly. ML_VISUAL_BACK provides a structured way to set up experiments and makes results accessible through standardized evaluation and visualization. Researchers and developers can quickly run experiments, test multiple algorithms on well-known datasets, and view results in a consistent format.  
+* Python (3.9+)
+* `websockets`
+* `requests`
+* `sqlite3` (built-in)
 
-The WebSocket interface allows the backend to integrate seamlessly with a front-end system, making it possible to build interactive visualization tools for machine learning workflows. This design enables ML_VISUAL_BACK to serve both as an educational resource for understanding algorithms and as a practical backend for small-scale machine learning applications.
+## Quick Start
 
-## How can users get started with the project?
+**Prerequisites**:
+* Python 3.9+ installed.
+* [Ollama](https://ollama.com/) running locally at `http://localhost:11434`.
+* An Ollama model (e.g., `qwen:0.5b`) downloaded and configured in `webmanager.py`.
 
-To get started with ML_VISUAL_BACK, clone the repository and install the required dependencies:
+1.  **Clone**: `git clone https://github.com/SIAK-q/local-llm-chat-server.git && cd local-llm-chat-server`
+2.  **Setup Environment** (Recommended):
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # macOS/Linux
+    # .\venv\Scripts\activate  # Windows
+    ```
+3.  **Install Dependencies**: `pip install -r requirements.txt`
+4.  **Initialize Database** (If `chat.db` doesn't exist): `python database.py`
+5.  **Configure Model**: Edit `webmanager.py` (around line 140) to set the correct Ollama `"model"` name in the `payload`.
+6.  **Run Server**: `python run_web.py`
+    * The server will start at `ws://127.0.0.1:8765`.
 
-```bash
-git clone https://github.com/runrunaway2020/ML_VISUAL_BACK.git
-cd ML_VISUAL_BACK
-pip install numpy scikit-learn matplotlib xgboost websockets
+## Frontend Repository
+
+Requires the companion frontend interface: [Vue-Ollama-Chat-Client](https://github.com/SIAK-q/local-llm-chat-ui)
