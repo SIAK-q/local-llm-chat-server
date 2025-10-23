@@ -1,5 +1,16 @@
-**/__pycache__
+# 虚拟环境 (这个就是 "node_modules")
+venv/
 
-build
-dist
-**/*.egg-info
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 数据库文件 (最佳实践是不上传数据库，只上传代码)
+chat.db
+
+# IDE 配置文件 (比如 VS Code, PyCharm)
+.idea/
+.vscode/
+
+# Mac 操作系统文件
+.DS_Store
